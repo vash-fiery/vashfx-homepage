@@ -1,8 +1,17 @@
 {
-    "workbench.editor.tabSizing": "shrink",
+    "workbench.editor.tabSizing": "fixed",
     "workbench.editor.doubleClickTabToToggleEditorGroupSizes": "off",
     "workbench.editor.highlightModifiedTabs": true,
     "workbench.editor.pinnedTabSizing": "compact",
-    "workbench.editor.showTabIndex": true,
-    "workbench.editor.wrapTabs": true
+    "workbench.editor.wrapTabs": false,
+    "workbench.editor.centeredLayoutFixedWidth": true,
+    "workbench.editor.closeOnFileDelete": true,
+    "workbench.editor.focusRecentEditorAfterClose": false,
+    "workbench.editor.pinnedTabsOnSeparateRow": true,
+    "workbench.editor.revealIfOpen": true,
+    "workbench.editor.showTabs": "multiple",
+    "workbench.editor.splitInGroupLayout": "vertical",
+    "workbench.editor.titleScrollbarSizing": "large",
+    "workbench.editor.titleScrollbarVisibility": "visible",
+    "window.density.editorTabHeight": "default"
 }
