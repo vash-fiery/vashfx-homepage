@@ -1,0 +1,8 @@
+{
+    "workbench.editor.tabSizing": "shrink",
+    "workbench.editor.doubleClickTabToToggleEditorGroupSizes": "off",
+    "workbench.editor.highlightModifiedTabs": true,
+    "workbench.editor.pinnedTabSizing": "compact",
+    "workbench.editor.showTabIndex": true,
+    "workbench.editor.wrapTabs": true
+}
