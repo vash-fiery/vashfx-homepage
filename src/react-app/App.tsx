@@ -10,6 +10,7 @@ import "./App.css";
 function App() {
   const [count, setCount] = useState(0);
   const [name, setName] = useState("unknown");
+  const [randomNumber, setRandomNumber] = useState<number | null>(null);
 
   return (
     <>
@@ -62,6 +63,30 @@ function App() {
         </button>
         <p>
           Edit <code>worker/index.ts</code> to change the name
+        </p>
+      </div>
+      <div className="card">
+        <button
+          onClick={() => {
+            fetch("/api/random")
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                return res.json() as Promise<{ number: number }>;
+              })
+              .then((data) => setRandomNumber(data.number))
+              .catch((error) => {
+                console.error("Failed to fetch random number:", error);
+                setRandomNumber(null);
+              });
+          }}
+          aria-label="get random number"
+        >
+          Random number from API is: {randomNumber ?? "N/A"}
+        </button>
+        <p>
+          Click the button to get a random number
         </p>
       </div>
       <p className="read-the-docs">Click on the logos to learn more</p>
