@@ -47,8 +47,14 @@ function App() {
         <button
           onClick={() => {
             fetch("/api/")
-              .then((res) => res.json() as Promise<{ name: string }>)
-              .then((data) => setName(data.name));
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                return res.json() as Promise<{ name: string }>;
+              })
+              .then((data) => setName(data.name))
+              .catch(() => setName("API request failed"));
           }}
           aria-label="get name"
         >
