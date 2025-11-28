@@ -11,6 +11,7 @@ function App() {
   const [count, setCount] = useState(0);
   const [name, setName] = useState("unknown");
   const [randomNumber, setRandomNumber] = useState<number | null>(null);
+  const [time, setTime] = useState<string | null>(null);
 
   return (
     <>
@@ -81,6 +82,30 @@ function App() {
         </button>
         <p>
           Click the button to get a random number
+        </p>
+      </div>
+      <div className="card">
+        <button
+          onClick={() => {
+            fetch("/api/time")
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                return res.json() as Promise<{ time: string }>;
+              })
+              .then((data) => setTime(data.time))
+              .catch((error) => {
+                console.error("Failed to fetch time:", error);
+                setTime(null);
+              });
+          }}
+          aria-label="get time"
+        >
+          Time from API is: {time ?? "N/A"}
+        </button>
+        <p>
+          Click the button to get the current server time
         </p>
       </div>
       <p className="read-the-docs">Click on the logos to learn more</p>
