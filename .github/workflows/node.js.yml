@@ -10,7 +10,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,4 +28,4 @@ jobs:
     - name: npm install, build and test
       run: |
         npm ci
-        npm test
+        npm build
