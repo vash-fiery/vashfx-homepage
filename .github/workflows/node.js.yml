@@ -24,8 +24,5 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: 24
-
-    - name: npm install, build and test
-      run: |
-        npm ci
-        npm build
+    - run: npm ci
+    - run: npm build
