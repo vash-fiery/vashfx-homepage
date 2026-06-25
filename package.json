@@ -17,14 +17,14 @@
   "dependencies": {
     "hono": "4.8.2",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.2.7"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.7.5",
     "@eslint/js": "9.29.0",
     "@types/node": "24.0.4",
     "@types/react": "19.0.10",
-    "@types/react-dom": "19.0.4",
+    "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "4.6.0",
     "eslint": "9.27.0",
     "eslint-plugin-react-hooks": "5.2.0",
