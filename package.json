@@ -33,7 +33,7 @@
     "typescript": "5.8.3",
     "typescript-eslint": "8.35.0",
     "vite": "^8.1.3",
-    "wrangler": "4.21.x"
+    "wrangler": "4.107.x"
   },
   "scripts": {
     "build": "tsc -b && vite build",
