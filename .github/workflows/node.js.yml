@@ -20,14 +20,6 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: ./dist
-
-    - name: Build with Vite
-      run: npm run build
-    
     - uses: actions/checkout@v7
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6
