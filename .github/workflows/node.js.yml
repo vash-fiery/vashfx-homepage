@@ -31,8 +31,10 @@ jobs:
     - run: npm install
     - run: npm ci
     - run: npm run build --if-present
+
     - name: Deploy with Wrangler
       uses: cloudflare/wrangler-action@v3
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    - run: npm run deploy
