@@ -32,6 +32,8 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
 
+  deploy:
+    steps:
     - name: Deploy with Wrangler
       uses: cloudflare/wrangler-action@v3
       with:
