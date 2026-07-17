@@ -8,14 +8,14 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v6
+    - uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm run update
+    - run: npm run install
     - run: npm ci
     - run: npm run build --if-present
     - name: Deploy with Wrangler
-      run: npm run deploy
-      env:
+    - run: npm run deploy
+    - env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
