@@ -44,10 +44,10 @@ function App() {
       <div className="card">
         <button
           onClick={() => {
-            fetch("/api/")
-              .then((res) => res.json() as Promise<{ name: string }>)
-              .then((data) => setName(data.name));
-          }}
+						fetch("/api/")
+							.then((res) => res.json() as Promise<{ name: string }>)
+							.then((data) => setName(data.name));
+					}}
           aria-label="get name"
         >
           Name from API is: {name}
@@ -60,7 +60,7 @@ function App() {
         <button
           onClick={() => {
             fetch("/api/random")
-              .then((res) => { res.json() as Promise<{ number: number }>)
+              .then((res) => res.json() as Promise<{ number: number }>)
               .then((data) => setRandomNumber(data.number));
           }}
           aria-label="get random number"
@@ -75,7 +75,7 @@ function App() {
         <button
           onClick={() => {
             fetch("/api/time")
-              .then((res) => { res.json() as Promise<{ time: string }>)
+              .then((res) => res.json() as Promise<{ time: string }>)
               .then((data) => setTime(data.time));
           }}
           aria-label="get time"
