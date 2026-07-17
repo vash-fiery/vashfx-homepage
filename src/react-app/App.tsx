@@ -60,17 +60,8 @@ function App() {
         <button
           onClick={() => {
             fetch("/api/random")
-              .then((res) => {
-                if (!res.ok) {
-                  throw new Error("Network response was not ok");
-                }
-                return res.json() as Promise<{ number: number }>;
-              })
-              .then((data) => setRandomNumber(data.number))
-              .catch((error) => {
-                console.error("Failed to fetch random number:", error);
-                setRandomNumber(null);
-              });
+              .then((res) => { res.json() as Promise<{ number: number }>)
+              .then((data) => setRandomNumber(data.number));
           }}
           aria-label="get random number"
         >
@@ -84,17 +75,8 @@ function App() {
         <button
           onClick={() => {
             fetch("/api/time")
-              .then((res) => {
-                if (!res.ok) {
-                  throw new Error("Network response was not ok");
-                }
-                return res.json() as Promise<{ time: string }>;
-              })
-              .then((data) => setTime(data.time))
-              .catch((error) => {
-                console.error("Failed to fetch time:", error);
-                setTime(null);
-              });
+              .then((res) => { res.json() as Promise<{ time: string }>)
+              .then((data) => setTime(data.time));
           }}
           aria-label="get time"
         >
