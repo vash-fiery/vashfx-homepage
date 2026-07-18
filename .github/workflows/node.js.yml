@@ -6,10 +6,12 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   build:
+    name: NPM Build CI ${{ matrix.node-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
