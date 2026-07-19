@@ -23,7 +23,7 @@ jobs:
           node-version: 24.x.x
           cache: npm
       - name: Install dependencies
-        run: npm run install
+        run: npm run update
         run: npm ci
       - name: Build
         run: npm run build --if-present
