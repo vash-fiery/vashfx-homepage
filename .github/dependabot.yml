@@ -14,7 +14,8 @@ updates:
     commit-message:
       prefix: "npm"
     labels:
-      - "npm dependencies"
+      - "npm"
+      - "dependencies"
     assignees:
       - "vash-fiery"
 
