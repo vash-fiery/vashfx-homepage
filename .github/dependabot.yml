@@ -17,7 +17,7 @@ updates:
       - "npm"
       - "dependencies"
     assignees:
-      - "vash-fiery"
+      - "Vash Fiery"
 
   - package-ecosystem: "github-actions"
     # Workflow files stored in the default location of `.github/workflows`
@@ -30,4 +30,4 @@ updates:
     labels:
       - "github_actions"
     assignees:
-      - "vash-fiery"
+      - "Vash Fiery"
