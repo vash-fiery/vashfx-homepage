@@ -1,2 +1,15 @@
-- name: Labeler
-  uses: actions/labeler@v6.2.0
+bug:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.js'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['docs/**/*', '*.md']
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: 'src/**'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: ['package.json', 'yarn.lock', 'package-lock.json']
