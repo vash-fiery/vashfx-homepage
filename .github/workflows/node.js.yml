@@ -8,7 +8,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+    contents: read
+    pull-requests: write
+    issues: write
 
 jobs:
   build:
@@ -22,10 +24,13 @@ jobs:
         with:
           node-version: 22.x
           cache: npm
+
       - name: Install dependencies
       - run: npm ci
+
       - name: Build
       - run: npm run build --if-present
+
       - name: Deploy with Wrangler
         if: github.event_name != 'pull_request'
         run: npm run deploy
