@@ -7,6 +7,12 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      issues: write
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v5 # Uploads repository content to the runner
+      with:
+        repository: "vash-fiery/vashfx-homepage" # The one of the available inputs, visit https://github.com/actions/checkout#readme to find more
     - uses: actions/labeler@v6
+      with:
+        configuration-path: '/'
