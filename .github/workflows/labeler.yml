@@ -3,7 +3,8 @@ on:
 - pull_request_target
 
 jobs:
-  labeler:
+  label:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
