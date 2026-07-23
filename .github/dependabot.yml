@@ -9,11 +9,12 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    pull-request-branch-name:
+      separator: "-"
     commit-message:
-      prefix: "[npm]"
+      prefix: "[npm] "
     labels:
-      - "npm"
-      - "dependencies"
+      - "npm dependencies"
     assignees:
       - "vash-fiery"
 
@@ -23,8 +24,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    pull-request-branch-name:
+      separator: "-"
     commit-message:
-      prefix: "[github]"
+      prefix: "[github] "
     labels:
       - "github_actions"
     assignees:
