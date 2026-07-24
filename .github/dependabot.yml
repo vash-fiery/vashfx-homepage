@@ -9,8 +9,6 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-    pull-request-branch-name:
-      separator: "-"
     commit-message:
       prefix: "[npm] "
     labels:
@@ -24,8 +22,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    pull-request-branch-name:
-      separator: "-"
     commit-message:
       prefix: "[github] "
     labels:
