@@ -12,11 +12,13 @@ jobs:
     name: Build and deploy with Node.js
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      actions: write
+      contents: write
       pull-requests: write
       issues: write
       pages: write
       id-token: write
+      packages: write
 
     steps:
       - uses: actions/checkout@v7
