@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: npm run build --if-present
       - name: Deploy with Wrangler
-        if: github.event_name == 'pull_request'
+        if: github.event_name != 'pull_request'
         run: npm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
