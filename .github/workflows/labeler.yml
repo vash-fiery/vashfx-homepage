@@ -16,6 +16,6 @@ jobs:
         repository: "vash-fiery/vashfx-homepage" # The one of the available inputs, visit https://github.com/actions/checkout#readme to find more
 
     - name: Labeler
-    - uses: actions/labeler@v7
+      uses: actions/labeler@v7
       with:
         configuration-path: '.github/labeler.yml'
