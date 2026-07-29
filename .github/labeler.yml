@@ -6,6 +6,10 @@ documentation:
   - changed-files:
       - any-glob-to-any-file: ['docs/**/*', '*.md']
 
+Documentation:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.md'
+
 frontend:
   - changed-files:
       - any-glob-to-any-file: 'src/**'
@@ -13,3 +17,17 @@ frontend:
 dependencies:
   - changed-files:
       - any-glob-to-any-file: ['package.json', 'yarn.lock', 'package-lock.json']
+
+source:
+- all:
+  - changed-files:
+    - any-glob-to-any-file: 'src/**/*'
+    - all-globs-to-all-files: '!src/docs/*'
+
+# Add 'feature' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
+feature:
+  - head-branch: ['^feature', 'feature']
+
+# Add 'release' label to any PR that is opened against the `main` branch
+release:
+  - base-branch: 'main'
