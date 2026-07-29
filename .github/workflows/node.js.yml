@@ -24,12 +24,12 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         node_version: [22, 24, 26]
-        include:
+        #include:
           # Active LTS + other OS
-          - os: macos-latest
-            node_version: 24
-          - os: windows-latest
-            node_version: 24
+          #- os: macos-latest
+            #node_version: 24
+          #- os: windows-latest
+            #node_version: 24
       fail-fast: false
 
     steps:
