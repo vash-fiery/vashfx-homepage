@@ -22,7 +22,7 @@
       "binding": "KV",
       "id": "97705489c8414a9ca74694c783b28fa4"
     }
-  ]
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
