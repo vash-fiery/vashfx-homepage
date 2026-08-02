@@ -12,9 +12,9 @@ updates:
       timezone: "America/Chicago"
     commit-message:
       prefix: "[npm] "
-    labels:
-      - "npm dependencies"
-      - "triage"
+    #labels:
+    #  - "npm dependencies"
+    #  - "triage"
     assignees:
       - "vash-fiery"
 
@@ -23,12 +23,12 @@ updates:
     # You don't need to specify `/.github/workflows` for `directory`. You can use `directory: "/"`.
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       timezone: "America/Chicago"
     commit-message:
       prefix: "[github] "
-    labels:
-      - "github_actions"
+    #labels:
+    #  - "github_actions"
     assignees:
       - "vash-fiery"
       
