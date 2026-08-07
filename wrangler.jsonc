@@ -23,7 +23,7 @@
       "id": "97705489c8414a9ca74694c783b28fa4"
     }
 	],
-  "r2_buckets": [
+	"r2_buckets": [
     {
       "binding": "R2_bucket",
       "bucket_name": "vashfx"
