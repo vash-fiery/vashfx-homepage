@@ -11,7 +11,7 @@ on:
 
 permissions:
   actions: write
-  contents: read
+  contents: write
   issues: write
   pull-requests: write
   id-token: write
@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - name: Use Node.js 24
+      - name: Use Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node_version }}
