@@ -12,6 +12,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@openai/codex": "^0.147.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
