@@ -19,8 +19,10 @@ repository edits.
 | Worker API | Adding or changing HTTP behavior under `/api/` | `worker/index.ts` |
 | Cloudflare configuration | Changing bindings, compatibility, assets, or observability | `wrangler.jsonc`, `worker-configuration.d.ts` |
 | Dependency maintenance | Adding, removing, or upgrading npm packages | `package.json`, `package-lock.json` |
+| Install-script review | Reviewing, approving, or denying dependency lifecycle scripts | `package.json`, `package-lock.json` |
 | Static assets | Adding images, icons, fonts, or public files | `src/assets/`, `public/` |
 | Validation and review | Checking any implementation before handoff | source files and npm scripts |
+| CI workflow | Changing checks, Node.js coverage, or deployment triggers | `.github/workflows/ci.yml` |
 | Deployment | Publishing an explicitly approved build to Cloudflare | `wrangler.jsonc`, build output |
 
 ## Frontend UI
@@ -78,35 +80,73 @@ the Cloudflare Worker.
 Use this skill for bindings, compatibility flags or dates, asset behavior,
 observability, source maps, and generated Worker types.
 
+The current bindings are:
+
+| Binding | Resource | Configuration key |
+| --- | --- | --- |
+| `KV` | Cloudflare KV namespace | `kv_namespaces` |
+| `R2_bucket` | R2 bucket named `vashfx` | `r2_buckets` |
+| `worker` | Service binding to `vashfx-homepage` | `services` |
+
 1. Read `wrangler.jsonc`, `worker/index.ts`, and
    `worker-configuration.d.ts` before changing bindings or runtime behavior.
 2. Keep secrets out of tracked files. Store them with the appropriate
    Cloudflare secret mechanism.
-3. After changing bindings, run `npm run cf-typegen` and review the generated
-   type diff.
-4. Treat compatibility-date and compatibility-flag updates as runtime changes;
+3. Preserve binding names unless the task intentionally includes the matching
+   Worker code and infrastructure migration.
+4. After changing bindings, run `npm run cf-typegen` and confirm the generated
+   `Env` declarations match `wrangler.jsonc`.
+5. Treat compatibility-date and compatibility-flag updates as runtime changes;
    explain their purpose and verify affected behavior.
-5. Run `npm run lint` and `npm run build`.
-6. Do not run `npm run deploy` unless the user explicitly requests deployment
+6. Run `npm run lint` and `npm run build`.
+7. Do not run `npm run deploy` unless the user explicitly requests deployment
    and confirms the target environment.
 
 ## Dependency maintenance
 
 Use this skill when adding, removing, or upgrading npm dependencies.
 
-1. Confirm whether the package belongs in `dependencies` or
+1. Use npm 11.19.0, matching the `packageManager` field in `package.json`.
+2. Confirm whether the package belongs in `dependencies` or
    `devDependencies`.
-2. Use npm commands to change dependencies so `package.json` and
+3. Use npm commands to change dependencies so `package.json` and
    `package-lock.json` stay synchronized.
-3. Review release notes and migration requirements for major upgrades.
-4. Inspect the lockfile diff for unexpected package churn, source changes, or
+4. Review release notes and migration requirements for major upgrades.
+5. Inspect the lockfile diff for unexpected package churn, source changes, or
    engine requirement changes.
-5. Update imports, configuration, and code required by the new version.
-6. Run `npm run lint` and `npm run build`.
-7. Report any unresolved advisories, peer-dependency warnings, or runtime
+6. Run `npm approve-scripts --allow-scripts-pending` and follow the
+   install-script review skill for every reported package.
+7. Update imports, configuration, and code required by the new version.
+8. Run `npm run lint` and `npm run build`.
+9. Report any unresolved advisories, peer-dependency warnings, or runtime
    compatibility concerns.
 
 Do not hand-edit resolved versions or integrity hashes in `package-lock.json`.
+
+## Install-script review
+
+Use this skill when npm reports dependency install scripts that are not yet
+covered by the repository's `allowScripts` policy.
+
+1. List pending scripts without changing policy:
+
+   ```sh
+   npm approve-scripts --allow-scripts-pending
+   ```
+
+2. For each package, inspect its exact installed version, lifecycle command,
+   package source, lockfile resolution, and why the script is required.
+3. Approve only named, reviewed packages with `npm approve-scripts <package>`.
+   Deny a named package with `npm deny-scripts <package>` when its script is
+   unnecessary or unsafe.
+4. Do not use `--all`, approve an unfamiliar package, or change an existing
+   denial unless the user explicitly authorizes that action.
+5. Review the resulting `allowScripts` diff in `package.json`, then run
+   `npm ci`, `npm run lint`, and `npm run build`.
+6. Report the package names and pinned versions that were approved or denied.
+
+The listing command is read-only. Completing the review requires an explicit
+decision for every package that remains pending.
 
 ## Static assets
 
@@ -129,31 +169,53 @@ Use this skill before handing off any implementation change.
 1. Review the complete diff and remove unrelated edits, debugging output,
    generated clutter, and stale comments.
 2. Confirm tracked files contain no secrets or local environment values.
-3. Run the checks appropriate to the change:
+3. Run `git diff --check` for every change.
+4. Run the checks appropriate to the change:
 
    ```sh
    npm run lint
    npm run build
    ```
 
-4. Use `npm run dev` or `npm run preview` for behavior or visual changes.
-5. Verify both the SPA and affected `/api/` routes when work crosses the
+5. Use `npm run dev` or `npm run preview` for behavior or visual changes.
+6. Verify both the SPA and affected `/api/` routes when work crosses the
    frontend/Worker boundary.
-6. Report exactly which checks ran and their results.
+7. Report exactly which checks ran and their results.
 
 The repository currently has no automated test script. Do not describe lint,
 build, or manual verification as automated tests.
+
+## CI workflow
+
+Use this skill for changes to `.github/workflows/ci.yml` or work that affects
+its build and deployment behavior.
+
+1. Read the complete workflow and identify every event, matrix entry,
+   permission, secret, and conditional before editing it.
+2. Preserve npm caching and reproducible installation with `npm ci`.
+3. Keep pull-request jobs non-deploying unless deployment previews are
+   explicitly requested and safely scoped.
+4. The current workflow deploys non-PR runs from its Node.js 22, 24, and 26
+   matrix. Treat changes to `main`, the matrix, or the deploy condition as
+   production-impacting.
+5. Use least-privilege workflow permissions and never print secret values.
+6. Validate the YAML structure and run the same local build commands used by
+   the workflow when practical.
 
 ## Deployment
 
 Use this skill only when deployment is explicitly requested.
 
-1. Confirm the target Cloudflare account, Worker, branch, and environment.
-2. Confirm the working change is approved and validation has passed.
-3. Review `wrangler.jsonc` for the intended Worker name and runtime settings.
-4. Run `npm run deploy`.
-5. Record the deployment result, URL, version or commit, and any warnings.
-6. Perform a focused smoke check of the homepage and relevant API routes.
+1. Confirm whether deployment will be manual or triggered by a push to
+   `main` through `.github/workflows/ci.yml`.
+2. Confirm the target Cloudflare account, Worker, branch, and environment.
+3. Confirm the working change is approved and validation has passed.
+4. Review `wrangler.jsonc` for the intended Worker name, bindings, and runtime
+   settings.
+5. Run `npm run deploy` only for an explicitly approved manual deployment;
+   otherwise use the approved GitHub workflow path.
+6. Record the deployment result, URL, version or commit, and any warnings.
+7. Perform a focused smoke check of the homepage and relevant API routes.
 
 Do not deploy merely to validate a change, and do not modify or remove an
 existing production deployment unless that action was explicitly requested.
