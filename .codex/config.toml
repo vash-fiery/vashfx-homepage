@@ -1,2 +1,3 @@
 [mcp_servers.tampermonkey]
-url = "https://localhost:4001/mcp"
+command = "npx"
+args = ["-y", "tampermonkey-mcp"]
