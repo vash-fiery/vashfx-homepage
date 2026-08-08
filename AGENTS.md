@@ -16,12 +16,17 @@ scope.
   under `/api/`.
 - `wrangler.jsonc` configures the Worker, SPA asset fallback, compatibility
   settings, observability, and source-map uploads.
+- The Worker currently has a KV binding named `KV`, an R2 binding named
+  `R2_bucket`, and a service binding named `worker`.
 - TypeScript uses project references for browser, Node/Vite, and Worker code.
+- `.github/workflows/ci.yml` builds with Node.js 22, 24, and 26. Pull requests
+  build without deploying; pushes to `main` also deploy through Wrangler.
 
 ## Setup and commands
 
-Use Node.js 22 or newer and npm. Keep `package-lock.json` authoritative and
-install reproducibly with:
+Use Node.js 22 or newer and npm 11.19.0, as declared by the `packageManager`
+field in `package.json`. Keep `package-lock.json` authoritative and install
+reproducibly with:
 
 ```sh
 npm ci
@@ -34,6 +39,7 @@ npm ci
 | `npm run build` | Type-check all projects and build the production bundle |
 | `npm run preview` | Build and preview the production bundle locally |
 | `npm run cf-typegen` | Regenerate Cloudflare binding types |
+| `npm approve-scripts --allow-scripts-pending` | List dependency install scripts awaiting review without approving them |
 | `npm run deploy` | Build and deploy to Cloudflare; run only when explicitly requested |
 
 ## Change guidelines
@@ -63,6 +69,12 @@ npm ci
   explain the reason in the pull request.
 - Change dependencies through npm so `package.json` and `package-lock.json`
   remain synchronized. Do not hand-edit lockfile dependency entries.
+- Before allowing a dependency lifecycle script, run
+  `npm approve-scripts --allow-scripts-pending`, inspect the package and exact
+  installed version, and approve or deny only explicitly reviewed packages.
+  Do not use `npm approve-scripts --all` without explicit authorization.
+- Treat `.github/workflows/ci.yml` and direct pushes to `main` as
+  deployment-sensitive because the current workflow deploys non-PR runs.
 
 ## Validation
 
@@ -79,7 +91,7 @@ For route-related changes, check both the SPA and the relevant `/api/` path.
 There is currently no automated test script. Do not claim tests passed unless a
 test suite has been added and run. Documentation-only changes do not require
 runtime checks, but still review Markdown structure, commands, and paths for
-accuracy.
+accuracy and run `git diff --check`.
 
 ## Generated and local files
 
@@ -91,6 +103,8 @@ the only exceptions already allowed by `.gitignore`.
 
 - Do not modify or stage unrelated files.
 - Use concise commit subjects that describe the completed change.
+- Prefer a branch and pull request for changes. A direct push to `main`
+  triggers the deployment workflow.
 - In pull requests, summarize the user-visible or developer-visible impact and
   list the validation commands actually run.
 - Do not deploy from an agent session unless the user explicitly requests a
