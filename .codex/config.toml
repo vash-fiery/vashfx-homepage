@@ -13,3 +13,7 @@ enabled = true
 
 [mcp_servers.chrome_devtools.tools.open]
 approval_mode = "approve"
+
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/"
+bearer_token_env_var = "PAT_TOKEN"
