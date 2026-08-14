@@ -24,6 +24,8 @@ change over time. Before changing Worker code or configuration:
    - <https://developers.cloudflare.com/workers/vite-plugin/>
    - <https://developers.cloudflare.com/workers/runtime-apis/bindings/>
    - <https://developers.cloudflare.com/workers/static-assets/>
+   - <https://developers.cloudflare.com/workers/ci-cd/builds/configuration/>
+   - <https://developers.cloudflare.com/workers/ci-cd/builds/troubleshoot/>
 
 Do not copy a remembered command, config field, limit, or API signature without
 verification.
@@ -42,7 +44,8 @@ verification.
 | Install-script review | Reviewing npm dependency lifecycle scripts | `package.json`, `package-lock.json` |
 | Static assets | Adding images, icons, fonts, or public files | `src/assets/`, `public/` |
 | Validation and review | Checking an implementation before handoff | changed files and npm scripts |
-| CI workflow | Changing checks, permissions, Node coverage, or deploy triggers | `.github/workflows/` |
+| CI workflow | Changing checks, permissions, or Node coverage | `.github/workflows/` |
+| Workers Builds | Changing Cloudflare Git deployment behavior or build settings | `wrangler.jsonc`, Cloudflare settings |
 | Deployment | Publishing an explicitly approved build to Cloudflare | `wrangler.jsonc`, build output |
 
 ## Repository orientation
@@ -131,6 +134,8 @@ module rules, environments, secrets declarations, observability, or generated
 Worker types.
 
 The current configuration declares no Cloudflare resource bindings.
+Its `account_id` selects the Cloudflare account used by non-interactive Workers
+Builds deployments and is not a runtime binding.
 
 1. Read the full `wrangler.jsonc`, the installed Wrangler schema, relevant
    Worker code, and `worker-configuration.d.ts`.
@@ -274,28 +279,53 @@ that affects build and deployment behavior.
 1. Read complete workflow and configuration files. Identify every trigger,
    matrix entry, permission, secret, condition, and deployment action.
 2. Preserve reproducible installs with `npm ci` and npm caching.
-3. The current build matrix uses Node.js 22, 24, and 26. The separate deploy
-   job uses Node.js 24 after all build jobs succeed.
-4. Pull requests build but do not enter the deploy job. Pushes to `main` and
-   manual workflow dispatches do deploy.
+3. The current build matrix uses Node.js 22, 24, and 26.
+4. Pull requests, pushes to `main`, and manual workflow dispatches validate but
+   never deploy from GitHub Actions.
 5. Runs for the same ref use concurrency cancellation so an older commit
-   cannot deploy after a newer commit.
+   cannot consume validation capacity after a newer commit starts.
 6. Node.js 24 validates generated Worker types and performs a Wrangler dry run
-   before the deployment job can start.
-7. Keep build and deploy responsibilities separate. Do not make pull requests
-   deploy unless a preview workflow is explicitly requested and safely scoped.
+   in addition to the normal lint and build checks.
+7. Cloudflare Workers Builds is the sole deployment owner. Do not add
+   `wrangler deploy`, Cloudflare API tokens, or deployment jobs to GitHub
+   Actions.
 8. Apply least-privilege permissions. Do not assume every existing top-level
    permission is required by every job.
 9. Never print `CLOUDFLARE_API_TOKEN` or other secret values.
 10. Validate YAML structure and run the same local commands used by the workflow
    when practical.
 
+## Workers Builds
+
+Use this skill for the Cloudflare Git integration, build ownership, preview
+versions, production deployments, or Workers Builds failures.
+
+1. Treat Workers Builds as the only automated deployment system for this
+   repository. GitHub Actions remains validation-only.
+2. Keep the Worker name in `wrangler.jsonc` aligned with the Worker connected
+   in Cloudflare.
+3. Keep `account_id` aligned with that Worker so non-interactive Wrangler
+   commands select the intended Cloudflare account.
+4. Store the Workers Builds API token only in Cloudflare build settings. Never
+   commit it or copy it into a GitHub workflow.
+5. For an account-selection failure, verify `account_id` or the
+   `CLOUDFLARE_ACCOUNT_ID` build variable. For a deleted, rolled, or stale
+   token, select or create a valid user token in Workers Builds settings.
+6. Keep production branch deployment and non-production preview behavior
+   distinct. Confirm both commands before changing build settings.
+7. Validate repository changes locally, then inspect the Workers Builds check
+   and build log without retrying production blindly.
+
+Done means exactly one automated system owns deployment, the Cloudflare build
+uses the intended account and valid token, previews do not promote production,
+and GitHub validation remains green.
+
 ## Deployment
 
 Use this skill only when deployment is explicitly requested.
 
-1. Confirm whether deployment is a push to `main`, manual workflow dispatch,
-   or an explicitly approved local Wrangler deployment.
+1. Confirm whether deployment is a Workers Builds push to `main` or an
+   explicitly approved local Wrangler deployment.
 2. Confirm the Cloudflare account, Worker name, branch, and environment.
 3. Confirm the change is approved and required validation has passed.
 4. Review `wrangler.jsonc`, binding targets, compatibility settings, required
@@ -309,8 +339,9 @@ Use this skill only when deployment is explicitly requested.
    npx wrangler deploy --dry-run
    ```
 
-6. Run `npm run deploy` only for an explicitly approved local deployment;
-   otherwise use the approved GitHub workflow path.
+6. Production automation belongs to Workers Builds. Run `npm run deploy` only
+   for an explicitly approved local deployment; never add a duplicate GitHub
+   deployment path.
 7. Remember that `wrangler secret put` and `wrangler secret delete` create and
    deploy a new version; treat them as deployment actions.
 8. Record the deployment result, URL, version or commit, and warnings.
