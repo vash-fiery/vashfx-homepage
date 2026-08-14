@@ -37,7 +37,7 @@ verification.
 | Styling and responsive design | Changing layout, themes, typography, or motion | `src/*.css` |
 | Worker API | Changing HTTP behavior under `/api/` | `worker/index.ts` |
 | Wrangler and type synchronization | Changing bindings, compatibility, assets, observability, or environments | `wrangler.jsonc`, `worker-configuration.d.ts` |
-| Cloudflare bindings | Reading or writing KV/R2 or calling a bound Worker | `worker/`, `wrangler.jsonc` |
+| Cloudflare bindings | Reading or writing configured bindings such as KV | `worker/`, `wrangler.jsonc` |
 | Dependency maintenance | Adding, removing, or upgrading npm packages | `package.json`, `package-lock.json` |
 | Install-script review | Reviewing npm dependency lifecycle scripts | `package.json`, `package-lock.json` |
 | Static assets | Adding images, icons, fonts, or public files | `src/assets/`, `public/` |
@@ -130,13 +130,7 @@ Use this skill for bindings, compatibility dates or flags, asset routing,
 module rules, environments, secrets declarations, observability, or generated
 Worker types.
 
-The current bindings are:
-
-| Binding | Resource | Configuration key | Safety note |
-| --- | --- | --- | --- |
-| `KV` | KV namespace | `kv_namespaces` | Handle missing keys as `null` |
-| `R2_bucket` | R2 bucket `vashfx` | `r2_buckets` | Stream large object bodies |
-| `worker` | Service `vashfx-homepage` | `services` | Self-targeting; prevent recursion |
+The current configuration declares no Cloudflare resource bindings.
 
 1. Read the full `wrangler.jsonc`, the installed Wrangler schema, relevant
    Worker code, and `worker-configuration.d.ts`.
@@ -168,21 +162,17 @@ the build and dry run pass, and infrastructure or deployment impact is stated.
 
 ## Cloudflare bindings
 
-Use this skill when implementing behavior with KV, R2, or service bindings.
+Use this skill when implementing behavior with configured Cloudflare bindings.
 
 1. Confirm the exact binding in `wrangler.jsonc` and generated `Env` type.
 2. Use the binding through `env`; do not add Cloudflare API credentials or call
    the REST API for a bound resource.
 3. For KV, handle `null` on missing reads and avoid assuming immediate global
    consistency.
-4. For R2, preserve metadata and HTTP semantics where relevant, and stream
-   large object bodies rather than buffering them.
-5. Await all KV, R2, and service-binding operations.
-6. The `worker` service binding points to this Worker. Do not forward the same
-   request back to it without an explicit, bounded recursion design.
-7. Local bindings are simulated by default. Use remote bindings only when the
+4. Await all binding operations.
+5. Local bindings are simulated by default. Use remote bindings only when the
    user authorizes the target resource and mutation risk.
-8. Validate success, missing-data, invalid-input, and relevant failure paths.
+6. Validate success, missing-data, invalid-input, and relevant failure paths.
 
 ## Dependency maintenance
 
@@ -288,12 +278,16 @@ that affects build and deployment behavior.
    job uses Node.js 24 after all build jobs succeed.
 4. Pull requests build but do not enter the deploy job. Pushes to `main` and
    manual workflow dispatches do deploy.
-5. Keep build and deploy responsibilities separate. Do not make pull requests
+5. Runs for the same ref use concurrency cancellation so an older commit
+   cannot deploy after a newer commit.
+6. Node.js 24 validates generated Worker types and performs a Wrangler dry run
+   before the deployment job can start.
+7. Keep build and deploy responsibilities separate. Do not make pull requests
    deploy unless a preview workflow is explicitly requested and safely scoped.
-6. Apply least-privilege permissions. Do not assume every existing top-level
+8. Apply least-privilege permissions. Do not assume every existing top-level
    permission is required by every job.
-7. Never print `CLOUDFLARE_API_TOKEN` or other secret values.
-8. Validate YAML structure and run the same local commands used by the workflow
+9. Never print `CLOUDFLARE_API_TOKEN` or other secret values.
+10. Validate YAML structure and run the same local commands used by the workflow
    when practical.
 
 ## Deployment
