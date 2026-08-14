@@ -51,6 +51,17 @@ jobs:
       if: ${{ github.event_name != 'pull_request' }}
       needs: build
       runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          os: [ubuntu-latest]
+          node_version: [24.x.x]
+          #include:
+            # Active LTS + other OS
+            #- os: macos-latest
+              #node_version: 24
+            #- os: windows-latest
+              #node_version: 24
+        fail-fast: false
   
       steps:
         - uses: actions/checkout@v7
