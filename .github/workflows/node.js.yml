@@ -50,7 +50,7 @@ jobs:
       name: Deploy with Node${{ matrix.node_version }}
       if: ${{ github.event_name != 'pull_request' }}
       needs: build
-      runs-on: ubuntu-latest
+      runs-on: ${{ matrix.os }}
       strategy:
         matrix:
           os: [ubuntu-latest]
@@ -68,7 +68,7 @@ jobs:
         - name: Use Node${{ matrix.node_version }}
           uses: actions/setup-node@v7
           with:
-            node-version: ${{ matrix.node_version }}
+            node_version: ${{ matrix.node_version }}
             cache: npm
   
         - name: Install dependencies
