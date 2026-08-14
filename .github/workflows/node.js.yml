@@ -67,11 +67,3 @@ jobs:
         run: npm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
-      - name: Upload deployment artifacts
-        uses: actions/upload-artifact@v7
-        if: ${{ failure() }}
-        with:
-          name: dist-deploy
-          path: dist/
-          if-no-files-found: ignore
