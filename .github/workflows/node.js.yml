@@ -58,17 +58,17 @@ jobs:
           if-no-files-found: ignore
 
   deploy:
-    name: Deploy with Node26
+    name: Deploy with Node24
     if: ${{ github.event_name != 'pull_request' }}
     needs: build
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v7
-      - name: Use Node26
+      - name: Use Node24
         uses: actions/setup-node@v7
         with:
-          node-version: 26
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
