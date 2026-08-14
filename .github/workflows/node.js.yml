@@ -38,7 +38,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node_version }}
-          #cache: npm
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -47,31 +47,31 @@ jobs:
         run: npm run build --if-present
 
   deploy:
-      name: Deploy with Node${{ matrix.node_version }}
-      if: ${{ github.event_name != 'pull_request' }}
-      needs: build
-      runs-on: ubuntu-latest
-      
-      steps:
-        - uses: actions/checkout@v7
-        - name: Use Node${{ matrix.node_version }}
-          uses: actions/setup-node@v7
-          with:
-            node-version: ${{ matrix.node_version }}
-            #cache: npm
-  
-        - name: Install dependencies
-          run: npm ci
-  
-        - name: Deploy with Wrangler
-          run: npm run deploy
-          env:
-            CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    name: Deploy with Node24
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: build
+    runs-on: ubuntu-latest
 
-        - name: Upload deployment artifacts
-          uses: actions/upload-artifact@v7
-          if: ${{ failure() }}
-          with:
-            name: dist-deploy
-            path: dist/
-            if-no-files-found: ignore
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use Node24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy with Wrangler
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v7
+        if: ${{ failure() }}
+        with:
+          name: dist-deploy
+          path: dist/
+          if-no-files-found: ignore
