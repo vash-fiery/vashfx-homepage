@@ -7,7 +7,6 @@
 	"name": "vashfx-homepage",
 	"main": "worker/index.ts",
 	"compatibility_date": "2026-07-23",
-	"account_id": "9eba2c7ef092ec4de848b70874999334",
 	"assets": {
 		"not_found_handling": "single-page-application"
 	},
@@ -17,12 +16,6 @@
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
-	],
-	"kv_namespaces": [
-		{
-			"binding": "KV",
-			"id": "97705489c8414a9ca74694c783b28fa4"
-		}
 	]
 	/**
 	 * Smart Placement
