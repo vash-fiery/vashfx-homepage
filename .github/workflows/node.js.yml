@@ -8,12 +8,10 @@ on:
     branches:
       - main
   workflow_dispatch:
-    branches:
-      - main
 
 permissions:
   actions: write
-  contents: write
+  contents: read
   issues: write
   pull-requests: write
   id-token: write
@@ -25,7 +23,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: ["24.x.x"]
+        node_version: ['24.x']
         #include:
           # Active LTS + other OS
           #- os: macos-latest
@@ -52,19 +50,8 @@ jobs:
       name: Deploy with Node${{ matrix.node_version }}
       if: ${{ github.event_name != 'pull_request' }}
       needs: build
-      runs-on: ${{ matrix.os }}
-      strategy:
-        matrix:
-          os: [ubuntu-latest]
-          node_version: ["24.x.x"]
-          #include:
-            # Active LTS + other OS
-            #- os: macos-latest
-              #node_version: 24
-            #- os: windows-latest
-              #node_version: 24
-        fail-fast: false
-  
+      runs-on: ubuntu-latest
+      
       steps:
         - uses: actions/checkout@v7
         - name: Use Node${{ matrix.node_version }}
