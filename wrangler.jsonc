@@ -29,12 +29,6 @@
 			"binding": "R2_bucket",
 			"bucket_name": "vashfx"
 		}
-	],
-	"services": [  
-		{   
-			"binding": "worker",   
-			"service": "vashfx-homepage"  
-		} 
 	]
 	/**
 	 * Smart Placement
