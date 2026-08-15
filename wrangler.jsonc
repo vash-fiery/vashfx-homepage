@@ -16,6 +16,12 @@
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
+	],
+	"r2_buckets": [
+		{
+			"binding": "R2_BUCKET", // <~ valid JavaScript variable name
+			"bucket_name": "vfx"
+		}
 	]
 	/**
 	 * Smart Placement
