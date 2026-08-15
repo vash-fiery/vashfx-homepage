@@ -4,24 +4,17 @@ export default class extends WorkerEntrypoint<Env> {
   async fetch(request: Request) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
-    
-    if (url.pathname.startsWith("/api/")) {
-      return Response.json({
-        name: "Cloudflare",
-      });
-    }
-    // return new Response(null, { status: 404 });
 
     switch (request.method) {
       case "PUT": {
-        await this.env.R2_BUCKET.put(key, request.body, {
+        await this.env.MY_BUCKET.put(key, request.body, {
           onlyIf: request.headers,
           httpMetadata: request.headers,
         });
         return new Response(`Put ${key} successfully!`);
       }
       case "GET": {
-        const object = await this.env.R2_BUCKET.get(key, {
+        const object = await this.env.MY_BUCKET.get(key, {
           onlyIf: request.headers,
           range: request.headers,
         });
@@ -41,7 +34,7 @@ export default class extends WorkerEntrypoint<Env> {
         });
       }
       case "DELETE": {
-        await this.env.R2_BUCKET.delete(key);
+        await this.env.MY_BUCKET.delete(key);
         return new Response("Deleted!");
       }
       default:
@@ -51,5 +44,13 @@ export default class extends WorkerEntrypoint<Env> {
             Allow: "PUT, GET, DELETE",
           },
         });
-    },
+    }
+    
+    if (url.pathname.startsWith("/api/")) {
+      return Response.json({
+        name: "Cloudflare",
+      });
+    }
+		return new Response(null, { status: 404 });
+  },
 } satisfies ExportedHandler<Env>;
