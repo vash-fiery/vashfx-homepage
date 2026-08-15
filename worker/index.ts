@@ -45,7 +45,7 @@ export default class extends WorkerEntrypoint<Env> {
           },
         });
     }
-  },
+  }
 
   fetch(request) {
     const url = new URL(request.url);
