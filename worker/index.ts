@@ -51,6 +51,5 @@ export default class extends WorkerEntrypoint<Env> {
             Allow: "PUT, GET, DELETE",
           },
         });
-    }
-  }
+    },
 } satisfies ExportedHandler<Env>;
