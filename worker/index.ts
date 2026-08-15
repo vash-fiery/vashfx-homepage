@@ -4,6 +4,13 @@ export default class extends WorkerEntrypoint<Env> {
   async fetch(request: Request) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
+    
+    if (url.pathname.startsWith("/api/")) {
+      return Response.json({
+        name: "Cloudflare",
+      });
+    }
+  	return new Response(null, { status: 404 });
 
     switch (request.method) {
       case "PUT": {
@@ -45,16 +52,5 @@ export default class extends WorkerEntrypoint<Env> {
           },
         });
     }
-  }
-
-  fetch(request) {
-    const url = new URL(request.url);
-
-    if (url.pathname.startsWith("/api/")) {
-      return Response.json({
-        name: "Cloudflare",
-      });
-    }
-	return new Response(null, { status: 404 });
-  }
+  },
 } satisfies ExportedHandler<Env>;
