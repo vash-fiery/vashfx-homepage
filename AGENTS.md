@@ -7,8 +7,8 @@ These instructions apply to the entire repository. If a more specific
 
 ## Repository snapshot
 
-- This is a React 19 single-page application written in TypeScript and built
-  with Vite 8.
+- This is a React 19 single-page application written in TypeScript 6 and built
+  with Vite 8. npm 11.19.0 is pinned through `packageManager`.
 - `@cloudflare/vite-plugin` runs the Worker in the Workers runtime during local
   development and builds the frontend and Worker together.
 - Browser code lives in `src/`; imported assets live in `src/assets/`; files
@@ -29,6 +29,11 @@ These instructions apply to the entire repository. If a more specific
   create preview versions without promoting production.
 - `.github/workflows/codeql.yml` analyzes GitHub Actions and
   JavaScript/TypeScript changes.
+- `.github/dependabot.yml` checks npm and GitHub Actions dependencies daily and
+  assigns its update pull requests to `vash-fiery`.
+- `.github/workflows/labeler.yml` runs on `pull_request_target` and reads
+  `.github/labeler.yml`. Treat this as a privileged workflow: it must not check
+  out a pull request head or execute pull-request-controlled code.
 
 ## Sources of truth
 
@@ -39,10 +44,14 @@ relying on memory.
 Use these sources in order:
 
 1. The user's task and the nearest applicable `AGENTS.md`.
-2. `package.json`, `package-lock.json`, and the repository's npm scripts.
-3. `wrangler.jsonc` and `node_modules/wrangler/config-schema.json`.
+2. `package.json`, `package-lock.json`, the repository's npm scripts, and the
+   complete source or configuration files in scope.
+3. `wrangler.jsonc` and `node_modules/wrangler/config-schema.json` for Worker
+   configuration work.
 4. Generated types from `wrangler types` and the installed package types.
-5. Current official Cloudflare documentation:
+5. The complete files under `.github/` for workflow, Dependabot, label, or
+   repository-automation work.
+6. Current official Cloudflare documentation:
    - <https://developers.cloudflare.com/workers/best-practices/workers-best-practices/>
    - <https://developers.cloudflare.com/workers/wrangler/commands/>
    - <https://developers.cloudflare.com/workers/vite-plugin/>
@@ -50,9 +59,13 @@ Use these sources in order:
    - <https://developers.cloudflare.com/workers/ci-cd/builds/configuration/>
    - <https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/>
    - <https://developers.cloudflare.com/workers/ci-cd/builds/troubleshoot/>
-6. Current official GitHub documentation:
+   - <https://developers.cloudflare.com/workers/versions-and-deployments/preview-urls/>
+7. Current official GitHub documentation:
    - <https://docs.github.com/en/actions/reference/workflows-and-actions>
    - <https://docs.github.com/en/actions/reference/security/secure-use>
+   - <https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference>
+8. Current official npm documentation for install-script policy:
+   - <https://docs.npmjs.com/cli/v11/commands/npm-approve-scripts/>
 
 When documentation and installed types or schema disagree, confirm whether the
 project dependency is behind before changing code or configuration.
@@ -85,8 +98,12 @@ npm ci
 - Keep changes narrowly scoped and preserve unrelated user work.
 - Use TypeScript and ES modules. Prefer explicit, narrow types and avoid
   `any`, unsafe double-casts, and unexplained TypeScript suppressions.
-- Follow the repository's Oxlint style: no semicolons, single quotes, and an
-  80-column target.
+- Treat Oxlint as a linter, not a formatter. Existing files contain mixed
+  legacy quote, semicolon, and indentation styles; do not normalize unrelated
+  lines during a scoped change.
+- For new or substantially rewritten TypeScript and TSX, use two-space
+  indentation, single quotes, no semicolons, and an approximately 80-column
+  target. For surgical edits, preserve the surrounding file's style.
 - Never commit credentials, API tokens, production secrets, or local
   environment values.
 - Do not silently change public routes, binding names, compatibility behavior,
@@ -168,8 +185,17 @@ npm ci
   `npm approve-scripts --allow-scripts-pending`, inspect the exact installed
   package and version, and approve or deny only explicitly reviewed packages.
   Do not use `npm approve-scripts --all` without explicit authorization.
+- Dependabot opens separate daily npm and GitHub Actions update pull requests.
+  Review the exact bot diff, release notes, lockfile or action-reference
+  changes, and all relevant checks; do not treat an automated update as
+  pre-approved.
 - Read complete workflow files before editing events, matrices, permissions,
   secrets, or conditions.
+- `pull_request_target` runs with base-repository context and can have write
+  permissions. Never use it to check out an untrusted pull request head, run
+  pull-request-controlled scripts, or consume untrusted artifacts.
+- GitHub label names are case-sensitive. Preserve existing names unless the
+  task explicitly includes a coordinated label migration.
 - Keep GitHub Actions validation-only. Do not uncomment its deploy block, add
   a deploy job, or copy a Cloudflare build token into GitHub secrets.
 - Distinguish GitHub Actions jobs from external checks such as Workers Builds.
@@ -179,6 +205,21 @@ npm ci
   failed build only after saving the corrected settings.
 - Treat a direct push to `main` and changes to Workers Builds settings as
   deployment-sensitive actions. Manual GitHub workflow runs build only.
+
+## Repository guidance maintenance
+
+- Update `AGENTS.md` and `SKILLS.md` together when a rule and its repeatable
+  playbook change as one unit.
+- Re-read the current tree, package scripts, Wrangler configuration, and
+  relevant automation before changing repository snapshots. Do not carry
+  forward versions, bindings, branches, or check results from an earlier
+  conversation.
+- Keep stable requirements separate from current-state observations. Verify
+  every command, path, workflow name, trigger, and external link included in
+  the documentation.
+- Remove or consolidate conflicting guidance instead of appending another
+  exception. Add a skill only for a repeatable workflow that is materially
+  distinct from an existing playbook.
 
 ## Validation
 
@@ -192,6 +233,7 @@ Use the smallest relevant validation set and report exactly what ran.
 | Wrangler or bindings | `npm run cf-typegen`, `npx wrangler types --check`, `npm run build`, and `npx wrangler deploy --dry-run` |
 | Dependency changes | `npm ci`, install-script review, `npm run lint`, and `npm run build` |
 | GitHub workflow | YAML review plus the same local commands used by the workflow |
+| GitHub automation | Review triggers, permissions, untrusted-input boundaries, configuration syntax, and affected label or update behavior |
 
 For route changes, exercise the successful path and at least one relevant
 failure path. Check both the SPA and affected `/api/` routes when a change
@@ -217,6 +259,9 @@ type-generation checks, dry runs, or manual checks as automated tests.
   explicit authorization; base replacement work on the current default branch.
 - Prefer an `agent/<description>` branch and a pull request. A direct push to
   `main` triggers Workers Builds and can deploy production.
+- A non-production branch may trigger a Workers Builds preview version. Treat
+  the preview as validation only and do not promote it to production without
+  explicit authorization.
 - Use concise commit subjects that describe completed changes.
 - Pull requests must summarize impact, Cloudflare or deployment risk, and the
   validation commands actually run.

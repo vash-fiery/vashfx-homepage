@@ -33,25 +33,33 @@ verification.
 
 ## GitHub retrieval rule
 
-Before changing GitHub workflows, pull-request state, or deployment ownership:
+Before changing GitHub workflows, pull-request state, repository automation,
+or deployment ownership:
 
-1. Read the complete workflow and relevant repository configuration.
+1. Read the complete workflow and relevant repository configuration, including
+   `.github/dependabot.yml`, `.github/labeler.yml`, and every affected file in
+   `.github/workflows/`.
 2. Inspect the current default branch, pull-request state, head SHA, and check
    runs through GitHub rather than relying on an earlier conversation.
 3. Retrieve the current official documentation:
    - <https://docs.github.com/en/actions/reference/workflows-and-actions>
    - <https://docs.github.com/en/actions/reference/security/secure-use>
+   - <https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request_target>
+   - <https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference>
 4. Treat GitHub Actions jobs and external checks such as Workers Builds as
    separate systems with separate logs and credentials.
 
 Use least-privilege workflow permissions, never place plaintext credentials in
 workflow files, and do not assume secret redaction can repair an exposed value.
+Treat `pull_request_target` as privileged: never check out an untrusted pull
+request head or run pull-request-controlled code in that context.
 
 ## Skill map
 
 | Skill | Use when | Primary paths |
 | --- | --- | --- |
 | Repository orientation | Establishing current structure, commands, and risk | root config and docs |
+| Repository guidance maintenance | Updating agent instructions or playbooks from current repository evidence | `AGENTS.md`, `SKILLS.md` |
 | Frontend UI | Building or changing React views and interactions | `src/` |
 | Styling and responsive design | Changing layout, themes, typography, or motion | `src/*.css` |
 | Worker API | Changing HTTP behavior under `/api/` | `worker/index.ts` |
@@ -59,6 +67,7 @@ workflow files, and do not assume secret redaction can repair an exposed value.
 | Cloudflare bindings | Reading or writing a configured Cloudflare resource | `worker/`, `wrangler.jsonc` |
 | Dependency maintenance | Adding, removing, or upgrading npm packages | `package.json`, `package-lock.json` |
 | Install-script review | Reviewing npm dependency lifecycle scripts | `package.json`, `package-lock.json` |
+| Automated update review | Reviewing Dependabot npm or GitHub Actions pull requests | `.github/dependabot.yml`, bot PR files |
 | Static assets | Adding images, icons, fonts, or public files | `src/assets/`, `public/` |
 | Validation and review | Checking an implementation before handoff | changed files and npm scripts |
 | CI workflow | Changing GitHub checks, permissions, or Node coverage | `.github/workflows/` |
@@ -72,8 +81,8 @@ task.
 
 1. Read `AGENTS.md`, `SKILLS.md`, `package.json`, `wrangler.jsonc`, and the
    relevant source files.
-2. Read `.github/workflows/node.js.yml` when the task can affect build or
-   deployment behavior.
+2. Read the affected files under `.github/` when the task can affect builds,
+   security analysis, labels, dependency updates, or deployment behavior.
 3. Confirm current dependency versions, npm scripts, binding names, generated
    types, and the default branch. Do not rely on an earlier conversation.
 4. Check for an existing branch or pull request that already owns the scope.
@@ -84,6 +93,35 @@ task.
 
 The skill is complete when the exact files, validation commands, deployment
 risk, and write target are known.
+
+## Repository guidance maintenance
+
+Use this skill when updating `AGENTS.md`, `SKILLS.md`, or both.
+
+1. Start from the current default branch. Check for an open pull request or
+   branch already covering the same guidance before creating replacement work.
+2. Inventory the complete repository tree and read both guidance files plus
+   every project file needed to verify their claims. At minimum, inspect
+   `package.json`, `wrangler.jsonc`, the relevant source entry points, and the
+   affected files under `.github/`.
+3. Separate stable operating rules from current-state snapshots. Re-verify
+   versions, commands, bindings, branch names, triggers, permissions, and
+   deployment ownership instead of copying them from an earlier conversation.
+4. Check current official documentation for every platform behavior or command
+   being added or changed.
+5. Keep `AGENTS.md` authoritative for repository-wide constraints and
+   `SKILLS.md` procedural. Remove contradictions and unnecessary duplication.
+6. Add a playbook only when it is repeatable, repository-specific, and
+   materially different from an existing skill. Update the skill map in the
+   same change.
+7. Review Markdown structure, tables, paths, commands, and links, then run
+   `git diff --check`.
+8. Use an `agent/<description>` branch and a pull request. Do not push guidance
+   directly to `main`, because a `main` push can trigger production deployment.
+
+Done means both files agree with each other and the current repository, every
+new operational claim has a source, the diff is documentation-only, and the
+deployment impact is stated.
 
 ## Frontend UI
 
@@ -252,6 +290,32 @@ project's `allowScripts` policy.
 The pending-list command is read-only. Approval and denial change project
 policy and require an explicit package-by-package decision.
 
+## Automated update review
+
+Use this skill for a Dependabot pull request that updates npm packages or
+GitHub Actions.
+
+1. Read `.github/dependabot.yml`, the complete pull request, its base and head
+   SHAs, changed files, and current check results.
+2. Confirm whether the update is for `npm` or `github-actions`; keep unrelated
+   ecosystems and independently opened bot pull requests separate unless the
+   task explicitly combines them.
+3. For npm updates, review release notes, engines, peers, lifecycle scripts,
+   `package.json`, and the full lockfile diff. Use the dependency-maintenance
+   and install-script-review skills, then run `npm ci`, `npm run lint`, and
+   `npm run build`.
+4. For GitHub Actions updates, review the action's official release notes,
+   supported inputs, permission requirements, and changed reference. Read the
+   complete affected workflow and preserve its security boundary.
+5. Inspect GitHub Actions and Workers Builds checks separately. A green bot
+   check or preview version is evidence, not permission to merge or deploy.
+6. Do not edit a bot branch, approve an install script, merge the pull request,
+   or enable auto-merge unless the user explicitly requests that action.
+
+Done means the update scope and risk are understood, required checks pass, the
+lockfile or action reference is internally consistent, and no deployment or
+merge was performed without authorization.
+
 ## Static assets
 
 Use this skill for images, icons, fonts, and SPA routing behavior.
@@ -282,11 +346,13 @@ Use this skill before handing off any implementation.
    | Scope | Commands and checks |
    | --- | --- |
    | Docs | Markdown, path, command, and link review |
+   | Repository guidance | Current-tree evidence, cross-file consistency, official-source review, `git diff --check` |
    | Frontend | `npm run lint`, `npm run build`, focused UI check |
    | Worker | lint, build, local route checks, Wrangler dry run |
    | Config/bindings | type generation, `wrangler types --check`, build, dry run |
    | Dependencies | `npm ci`, script review, lint, build |
    | Workflow | YAML/event/permission review plus workflow command parity |
+   | GitHub automation | Trigger privilege, untrusted-input boundary, Dependabot or label configuration, and expected behavior |
 
 5. Verify both the SPA and affected `/api/` routes when work crosses the
    frontend/Worker boundary.
@@ -297,11 +363,14 @@ build, Wrangler checks, or manual verification as tests.
 
 ## CI workflow
 
-Use this skill for `.github/workflows/node.js.yml`, CodeQL, Dependabot, or work
-that affects build and deployment behavior.
+Use this skill for GitHub Actions, Dependabot, label automation, or work that
+affects build and deployment behavior.
 
-1. Read complete workflow and configuration files. Identify every trigger,
-   matrix entry, permission, secret, condition, and deployment action.
+1. Read complete workflow and configuration files. For the current repository,
+   this includes `.github/workflows/node.js.yml`, `codeql.yml`, `labeler.yml`,
+   `.github/dependabot.yml`, and `.github/labeler.yml` when relevant. Identify
+   every trigger, matrix entry, permission, secret, condition, and deployment
+   action.
 2. Preserve reproducible installs with `npm ci` and npm caching.
 3. The current build matrix uses Node.js 24 and 26 and runs
    `npm run build --if-present`.
@@ -309,12 +378,21 @@ that affects build and deployment behavior.
    never deploy from GitHub Actions. The commented deploy block is inert.
 5. Workers Builds is the sole deployment owner. Do not uncomment the GitHub
    deploy block, add another deploy job, or add a Cloudflare token to GitHub.
-6. Apply least-privilege permissions. Do not assume every existing top-level
-   permission is required by every job.
-7. Never print `CLOUDFLARE_API_TOKEN` or other secret values.
-8. Validate YAML structure and run the same local commands used by the workflow
-   when practical.
-9. Inspect GitHub Actions and external Workers Builds checks independently. A
+6. CodeQL analyzes `actions` and `javascript-typescript` on pushes and pull
+   requests to `main`, plus its scheduled weekly run. Preserve the intended
+   language matrix and required `security-events` permission.
+7. The labeler runs on `pull_request_target`. Preserve the base-repository
+   checkout and never check out or execute the untrusted pull request head.
+8. Dependabot checks npm and GitHub Actions daily in `America/Chicago` and
+   assigns update pull requests to `vash-fiery`. Validate ecosystem names,
+   directory paths, schedule fields, and intended assignees when editing it.
+9. Apply least-privilege permissions. Do not assume every existing top-level
+   permission is required by every job, and preserve exact label casing unless
+   the task includes a label migration.
+10. Never print `CLOUDFLARE_API_TOKEN` or other secret values.
+11. Validate YAML structure and run the same local commands used by the
+    workflow when practical.
+12. Inspect GitHub Actions and external Workers Builds checks independently. A
    successful GitHub build does not imply a successful Cloudflare deployment.
 
 ## Workers Builds
