@@ -24,9 +24,28 @@ change over time. Before changing Worker code or configuration:
    - <https://developers.cloudflare.com/workers/vite-plugin/>
    - <https://developers.cloudflare.com/workers/runtime-apis/bindings/>
    - <https://developers.cloudflare.com/workers/static-assets/>
+   - <https://developers.cloudflare.com/workers/ci-cd/builds/configuration/>
+   - <https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/>
+   - <https://developers.cloudflare.com/workers/ci-cd/builds/troubleshoot/>
 
 Do not copy a remembered command, config field, limit, or API signature without
 verification.
+
+## GitHub retrieval rule
+
+Before changing GitHub workflows, pull-request state, or deployment ownership:
+
+1. Read the complete workflow and relevant repository configuration.
+2. Inspect the current default branch, pull-request state, head SHA, and check
+   runs through GitHub rather than relying on an earlier conversation.
+3. Retrieve the current official documentation:
+   - <https://docs.github.com/en/actions/reference/workflows-and-actions>
+   - <https://docs.github.com/en/actions/reference/security/secure-use>
+4. Treat GitHub Actions jobs and external checks such as Workers Builds as
+   separate systems with separate logs and credentials.
+
+Use least-privilege workflow permissions, never place plaintext credentials in
+workflow files, and do not assume secret redaction can repair an exposed value.
 
 ## Skill map
 
@@ -37,12 +56,13 @@ verification.
 | Styling and responsive design | Changing layout, themes, typography, or motion | `src/*.css` |
 | Worker API | Changing HTTP behavior under `/api/` | `worker/index.ts` |
 | Wrangler and type synchronization | Changing bindings, compatibility, assets, observability, or environments | `wrangler.jsonc`, `worker-configuration.d.ts` |
-| Cloudflare bindings | Reading or writing KV/R2 or calling a bound Worker | `worker/`, `wrangler.jsonc` |
+| Cloudflare bindings | Reading or writing a configured Cloudflare resource | `worker/`, `wrangler.jsonc` |
 | Dependency maintenance | Adding, removing, or upgrading npm packages | `package.json`, `package-lock.json` |
 | Install-script review | Reviewing npm dependency lifecycle scripts | `package.json`, `package-lock.json` |
 | Static assets | Adding images, icons, fonts, or public files | `src/assets/`, `public/` |
 | Validation and review | Checking an implementation before handoff | changed files and npm scripts |
-| CI workflow | Changing checks, permissions, Node coverage, or deploy triggers | `.github/workflows/` |
+| CI workflow | Changing GitHub checks, permissions, or Node coverage | `.github/workflows/` |
+| Workers Builds | Changing Cloudflare Git builds, previews, or deployment settings | `wrangler.jsonc`, Cloudflare settings |
 | Deployment | Publishing an explicitly approved build to Cloudflare | `wrangler.jsonc`, build output |
 
 ## Repository orientation
@@ -57,6 +77,8 @@ task.
 3. Confirm current dependency versions, npm scripts, binding names, generated
    types, and the default branch. Do not rely on an earlier conversation.
 4. Check for an existing branch or pull request that already owns the scope.
+   If it is closed and unmerged, do not reopen or continue it without explicit
+   authorization; start replacement work from the current default branch.
 5. Classify the work as frontend, Worker, configuration, dependency, CI,
    documentation, or deployment work and select the matching skill.
 
@@ -130,13 +152,9 @@ Use this skill for bindings, compatibility dates or flags, asset routing,
 module rules, environments, secrets declarations, observability, or generated
 Worker types.
 
-The current bindings are:
-
-| Binding | Resource | Configuration key | Safety note |
-| --- | --- | --- | --- |
-| `KV` | KV namespace | `kv_namespaces` | Handle missing keys as `null` |
-| `R2_bucket` | R2 bucket `vashfx` | `r2_buckets` | Stream large object bodies |
-| `worker` | Service `vashfx-homepage` | `services` | Self-targeting; prevent recursion |
+The current configuration declares no Cloudflare resource bindings and omits
+`account_id`. Workers Builds selects its account and user token through
+Cloudflare build settings.
 
 1. Read the full `wrangler.jsonc`, the installed Wrangler schema, relevant
    Worker code, and `worker-configuration.d.ts`.
@@ -160,7 +178,10 @@ The current bindings are:
    official compatibility changes and test affected behavior.
 8. Keep observability enabled. Configure log or trace sampling deliberately
    and use structured application logs.
-9. Do not deploy, change secrets, use remote bindings, or mutate Cloudflare
+9. Keep `account_id` omitted unless a verified multi-account or routing issue
+   requires it. A build-only account override belongs in
+   `CLOUDFLARE_ACCOUNT_ID` in Cloudflare build settings, not source control.
+10. Do not deploy, change secrets, use remote bindings, or mutate Cloudflare
    resources unless explicitly authorized.
 
 Done means the config matches the schema, generated types match the config,
@@ -168,21 +189,19 @@ the build and dry run pass, and infrastructure or deployment impact is stated.
 
 ## Cloudflare bindings
 
-Use this skill when implementing behavior with KV, R2, or service bindings.
+Use this skill when implementing behavior with a configured Cloudflare
+binding. The repository currently has none.
 
 1. Confirm the exact binding in `wrangler.jsonc` and generated `Env` type.
 2. Use the binding through `env`; do not add Cloudflare API credentials or call
    the REST API for a bound resource.
-3. For KV, handle `null` on missing reads and avoid assuming immediate global
-   consistency.
-4. For R2, preserve metadata and HTTP semantics where relevant, and stream
-   large object bodies rather than buffering them.
-5. Await all KV, R2, and service-binding operations.
-6. The `worker` service binding points to this Worker. Do not forward the same
-   request back to it without an explicit, bounded recursion design.
-7. Local bindings are simulated by default. Use remote bindings only when the
+3. Apply the product-specific consistency, streaming, and error semantics from
+   the current Cloudflare documentation.
+4. Await every binding operation. For service bindings, also prevent
+   accidental or unbounded recursive calls.
+5. Local bindings are simulated by default. Use remote bindings only when the
    user authorizes the target resource and mutation risk.
-8. Validate success, missing-data, invalid-input, and relevant failure paths.
+6. Validate success, missing-data, invalid-input, and relevant failure paths.
 
 ## Dependency maintenance
 
@@ -284,24 +303,58 @@ that affects build and deployment behavior.
 1. Read complete workflow and configuration files. Identify every trigger,
    matrix entry, permission, secret, condition, and deployment action.
 2. Preserve reproducible installs with `npm ci` and npm caching.
-3. The current build matrix uses Node.js 22, 24, and 26. The separate deploy
-   job uses Node.js 24 after all build jobs succeed.
-4. Pull requests build but do not enter the deploy job. Pushes to `main` and
-   manual workflow dispatches do deploy.
-5. Keep build and deploy responsibilities separate. Do not make pull requests
-   deploy unless a preview workflow is explicitly requested and safely scoped.
+3. The current build matrix uses Node.js 24 and 26 and runs
+   `npm run build --if-present`.
+4. Pull requests, pushes to `main`, and manual workflow dispatches build but
+   never deploy from GitHub Actions. The commented deploy block is inert.
+5. Workers Builds is the sole deployment owner. Do not uncomment the GitHub
+   deploy block, add another deploy job, or add a Cloudflare token to GitHub.
 6. Apply least-privilege permissions. Do not assume every existing top-level
    permission is required by every job.
 7. Never print `CLOUDFLARE_API_TOKEN` or other secret values.
 8. Validate YAML structure and run the same local commands used by the workflow
    when practical.
+9. Inspect GitHub Actions and external Workers Builds checks independently. A
+   successful GitHub build does not imply a successful Cloudflare deployment.
+
+## Workers Builds
+
+Use this skill for the Cloudflare Git integration, production and preview
+builds, build settings, or a failed Workers Builds check.
+
+1. Treat Workers Builds as the only automated deployment system. GitHub
+   Actions remains build-only even though its current display name is legacy.
+2. Keep the production branch set to `main`. A production-branch push runs the
+   configured build command followed by the deploy command.
+3. Keep non-production branch behavior separate. When enabled, it must use the
+   preview deploy command so a branch build uploads a preview version without
+   promoting production.
+4. Keep the Worker name aligned between `wrangler.jsonc` and Cloudflare.
+5. Keep the build user token only in Cloudflare Settings > Build > API token.
+   Never commit it, print it, or copy it into GitHub Actions.
+6. Leave `account_id` absent unless the build log proves account selection is
+   wrong. For error code `7003`, remove or correct a mismatched value or set
+   `CLOUDFLARE_ACCOUNT_ID` in the Cloudflare build environment.
+7. If the log reports a deleted, rolled, or stale token, create or select a
+   valid user token in Build settings, save, and then retry. A retry uses the
+   build configuration that exists when the retry starts.
+8. Diagnose from evidence in this order: GitHub check status, Workers Builds
+   check, Cloudflare build ID and log, Worker-name/account match, then token.
+   Do not change application code for a pre-build authentication failure.
+9. Before changing build or branch settings, record the existing production
+   and preview commands and confirm the requested deployment impact.
+
+Done means GitHub remains build-only, Workers Builds succeeds with the intended
+account and user token, preview builds do not promote production, and no token
+appears in repository content or logs.
 
 ## Deployment
 
 Use this skill only when deployment is explicitly requested.
 
-1. Confirm whether deployment is a push to `main`, manual workflow dispatch,
-   or an explicitly approved local Wrangler deployment.
+1. Confirm whether deployment is a Workers Builds push to `main` or an
+   explicitly approved local Wrangler deployment. A manual GitHub workflow run
+   does not deploy.
 2. Confirm the Cloudflare account, Worker name, branch, and environment.
 3. Confirm the change is approved and required validation has passed.
 4. Review `wrangler.jsonc`, binding targets, compatibility settings, required
@@ -315,8 +368,9 @@ Use this skill only when deployment is explicitly requested.
    npx wrangler deploy --dry-run
    ```
 
-6. Run `npm run deploy` only for an explicitly approved local deployment;
-   otherwise use the approved GitHub workflow path.
+6. Production automation belongs to Workers Builds. Run `npm run deploy` only
+   for an explicitly approved local deployment; never create a duplicate
+   GitHub deployment path.
 7. Remember that `wrangler secret put` and `wrangler secret delete` create and
    deploy a new version; treat them as deployment actions.
 8. Record the deployment result, URL, version or commit, and warnings.
