@@ -52,5 +52,5 @@ export default class extends WorkerEntrypoint<Env> {
       });
     }
 	return new Response(null, { status: 404 });
-  },
+  }
 } satisfies ExportedHandler<Env>;
