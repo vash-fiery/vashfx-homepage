@@ -44,9 +44,11 @@ export default class extends WorkerEntrypoint<Env> {
             Allow: "PUT, GET, DELETE",
           },
         });
-		}
+	}
+  },
+}
 
-		export default {
+export default {
   fetch(request) {
     const url = new URL(request.url);
 
@@ -55,8 +57,6 @@ export default class extends WorkerEntrypoint<Env> {
         name: "Cloudflare",
       });
     }
-		return new Response(null, { status: 404 });
+    return new Response(null, { status: 404 });
   },
 } satisfies ExportedHandler<Env>;
-  },
-};
