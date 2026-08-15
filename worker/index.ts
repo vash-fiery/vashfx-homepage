@@ -44,13 +44,13 @@ export default class extends WorkerEntrypoint<Env> {
             Allow: "PUT, GET, DELETE",
           },
         });
-    }
+    },
     
     if (url.pathname.startsWith("/api/")) {
       return Response.json({
         name: "Cloudflare",
       });
     }
-		return new Response(null, { status: 404 });
-  },
+	return new Response(null, { status: 404 });
+  }
 } satisfies ExportedHandler<Env>;
