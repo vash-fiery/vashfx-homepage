@@ -44,7 +44,7 @@ export default class extends WorkerEntrypoint<Env> {
             Allow: "PUT, GET, DELETE",
           },
         });
-    },
+	}
     
     if (url.pathname.startsWith("/api/")) {
       return Response.json({
@@ -52,5 +52,5 @@ export default class extends WorkerEntrypoint<Env> {
       });
     }
 	return new Response(null, { status: 404 });
-  }
+  },
 } satisfies ExportedHandler<Env>;
