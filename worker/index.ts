@@ -1,9 +1,16 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
 
-export default class extends WorkerEntrypoint<Env> {
+class Handler extends WorkerEntrypoint<Env> {
   async fetch(request: Request) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
+    
+    if (url.pathname.startsWith("/api/")) {
+      return Response.json({
+        name: "Cloudflare",
+      });
+    }
+    // return new Response(null, { status: 404 });
 
     switch (request.method) {
       case "PUT": {
@@ -44,20 +51,8 @@ export default class extends WorkerEntrypoint<Env> {
             Allow: "PUT, GET, DELETE",
           },
         });
-     }
-   }
-};
-  
-    
-export default new Handler() {
-  fetch(request) {
-    const url = new URL(request.url);
-
-    if (url.pathname.startsWith("/api/")) {
-      return Response.json({
-        name: "Cloudflare",
-      });
     }
-		return new Response(null, { status: 404 });
-  },
-} satisfies ExportedHandler<Env>;
+  }
+}
+
+export default new Handler() satisfies ExportedHandler<Env>;
