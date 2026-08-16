@@ -14,14 +14,14 @@ class Handler extends WorkerEntrypoint<Env> {
 
     switch (request.method) {
       case "PUT": {
-        await env.vfx_r2.put(key, request.body, {
+        await env.R2_VFX.put(key, request.body, {
           onlyIf: request.headers,
           httpMetadata: request.headers,
         });
         return new Response(`Put ${key} successfully!`);
       }
       case "GET": {
-        const object = await env.vfx_r2.get(key, {
+        const object = await env.R2_VFX.get(key, {
           onlyIf: request.headers,
           range: request.headers,
         });
@@ -41,7 +41,7 @@ class Handler extends WorkerEntrypoint<Env> {
         });
       }
       case "DELETE": {
-        await env.vfx_r2.delete(key);
+        await env.R2_VFX.delete(key);
         return new Response("Deleted!");
       }
       default:
