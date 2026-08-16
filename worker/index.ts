@@ -1,4 +1,4 @@
-import { WorkerEntrypoint } from "cloudflare:workers";
+import { env, WorkerEntrypoint } from "cloudflare:workers";
 
 class Handler extends WorkerEntrypoint<Env> {
   async fetch(request: Request) {
@@ -14,14 +14,14 @@ class Handler extends WorkerEntrypoint<Env> {
 
     switch (request.method) {
       case "PUT": {
-        await this.env.vfx_r2.put(key, request.body, {
+        await env.vfx_r2.put(key, request.body, {
           onlyIf: request.headers,
           httpMetadata: request.headers,
         });
         return new Response(`Put ${key} successfully!`);
       }
       case "GET": {
-        const object = await this.env.vfx_r2.get(key, {
+        const object = await env.vfx_r2.get(key, {
           onlyIf: request.headers,
           range: request.headers,
         });
@@ -41,7 +41,7 @@ class Handler extends WorkerEntrypoint<Env> {
         });
       }
       case "DELETE": {
-        await this.env.vfx_r2.delete(key);
+        await env.vfx_r2.delete(key);
         return new Response("Deleted!");
       }
       default:
