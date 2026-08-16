@@ -1,6 +1,6 @@
 import { env, WorkerEntrypoint } from "cloudflare:workers";
 
-class Handler extends WorkerEntrypoint<Env> {
+export default class extends WorkerEntrypoint<Env> {
   async fetch(request: Request) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
@@ -54,5 +54,3 @@ class Handler extends WorkerEntrypoint<Env> {
     }
   }
 }
-
-export default new Handler() satisfies ExportedHandler<Env>;
