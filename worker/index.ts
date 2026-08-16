@@ -1,7 +1,7 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
 
 class Handler extends WorkerEntrypoint<Env> {
-  async fetch(request: Request, env: env) {
+  async fetch(request: Request) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
     
@@ -14,14 +14,14 @@ class Handler extends WorkerEntrypoint<Env> {
 
     switch (request.method) {
       case "PUT": {
-        await env.vfx_r2.put(key, request.body, {
+        await this.env.vfx_r2.put(key, request.body, {
           onlyIf: request.headers,
           httpMetadata: request.headers,
         });
         return new Response(`Put ${key} successfully!`);
       }
       case "GET": {
-        const object = await env.vfx_r2.get(key, {
+        const object = await this.env.vfx_r2.get(key, {
           onlyIf: request.headers,
           range: request.headers,
         });
@@ -41,7 +41,7 @@ class Handler extends WorkerEntrypoint<Env> {
         });
       }
       case "DELETE": {
-        await env.vfx_r2.delete(key);
+        await env.this.vfx_r2.delete(key);
         return new Response("Deleted!");
       }
       default:
