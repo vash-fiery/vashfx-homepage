@@ -41,7 +41,7 @@ class Handler extends WorkerEntrypoint<Env> {
         });
       }
       case "DELETE": {
-        await env.this.vfx_r2.delete(key);
+        await this.env.vfx_r2.delete(key);
         return new Response("Deleted!");
       }
       default:
