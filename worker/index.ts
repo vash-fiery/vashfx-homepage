@@ -1,7 +1,7 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
 
 class Handler extends WorkerEntrypoint<Env> {
-  async fetch(request: Request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
     
