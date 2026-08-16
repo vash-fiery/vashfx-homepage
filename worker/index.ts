@@ -44,17 +44,20 @@ export default class extends WorkerEntrypoint<Env> {
             Allow: "PUT, GET, DELETE",
           },
         });
-    }
+     }
+   }
+};
   
-    fetch(request) {
-      const url = new URL(request.url);
+    
+export default new Handler() {
+  fetch(request) {
+    const url = new URL(request.url);
 
-      if (url.pathname.startsWith("/api/")) {
-        return Response.json({
-          name: "Cloudflare",
-        });
-      }
-      return new Response(null, { status: 404 });
+    if (url.pathname.startsWith("/api/")) {
+      return Response.json({
+        name: "Cloudflare",
+      });
     }
+		return new Response(null, { status: 404 });
   },
-} satisfies ExportedHandler<Env>
+} satisfies ExportedHandler<Env>;
