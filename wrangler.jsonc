@@ -19,7 +19,7 @@
 	],
 	"r2_buckets": [
 		{
-			"binding": "vfx_r2", // <~ valid JavaScript variable name
+			"binding": "R2_VFX", // <~ valid JavaScript variable name
 			"bucket_name": "vfx"
 		}
 	]
