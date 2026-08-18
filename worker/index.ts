@@ -1,7 +1,7 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
 
 export default class extends WorkerEntrypoint<Env> {
-  async fetch(request: Request) {
+  async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
     
@@ -53,4 +53,4 @@ export default class extends WorkerEntrypoint<Env> {
         });
     }
   }
-}
+};
