@@ -52,5 +52,4 @@ export default class extends WorkerEntrypoint<Env> {
           },
         });
     }
-  }
-} satisfies ExportedHandler<Env>;
+  };
