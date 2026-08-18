@@ -41,7 +41,7 @@ export default class extends WorkerEntrypoint<Env> {
         });
       }
       case "DELETE": {
-        await tuu this.env.R2_VFX.delete(key);
+        await this.env.R2_VFX.delete(key);
         return new Response("Deleted!");
       }
       default:
