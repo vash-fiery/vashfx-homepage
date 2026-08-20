@@ -15,8 +15,7 @@
 	},
 	"upload_source_maps": true,
 	"compatibility_flags": [
-		"nodejs_compat",
-    "add_nodejs_compat_eol_v23"
+		"nodejs_compat"
 	],
 	"r2_buckets": [
 		{
