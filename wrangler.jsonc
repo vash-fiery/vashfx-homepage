@@ -6,7 +6,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "vashfx-homepage",
 	"main": "worker/index.ts",
-	"compatibility_date": "2026-08-15",
+	"compatibility_date": "2026-08-04",
 	"assets": {
 		"not_found_handling": "single-page-application"
 	},
@@ -15,7 +15,8 @@
 	},
 	"upload_source_maps": true,
 	"compatibility_flags": [
-		"nodejs_compat"
+		"nodejs_compat",
+        "add_nodejs_compat_eol_v23"
 	],
 	"r2_buckets": [
 		{
