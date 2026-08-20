@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: 26.x
+        node_version: 26
         #include:
           # Active LTS + other OS
           #- os: macos-latest
