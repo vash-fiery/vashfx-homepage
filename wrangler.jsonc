@@ -17,7 +17,7 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-  "placement": {  
+  "placement": {
     "mode": "smart" 
   },
 	"r2_buckets": [
