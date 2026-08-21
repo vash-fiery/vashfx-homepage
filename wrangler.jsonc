@@ -25,7 +25,10 @@
 			"binding": "R2_VFX", // <~ valid JavaScript variable name
 			"bucket_name": "vfx"
 		}
-	]
+	],
+	"analytics_engine_datasets": [
+    { "binding": "DS", "dataset": "ds_events" }
+  ]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
