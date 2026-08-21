@@ -27,8 +27,11 @@
 		}
 	],
 	"analytics_engine_datasets": [
-    { "binding": "DS", "dataset": "ds_events" }
-  ]
+		{ 
+			"binding": "DS", 
+			"dataset": "ds_events" 
+		}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
