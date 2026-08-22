@@ -12,7 +12,7 @@ export default {
       });
     }
     // return new Response(null, { status: 404 });
-    return this.env.ASSETS.fetch(request);
+    return env.ASSETS.fetch(request);
 	},
 };
 
