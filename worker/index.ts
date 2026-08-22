@@ -9,9 +9,7 @@ export default {
       });
     }
     return env.ASSETS.fetch(request);
-  },
-
-  async fetch(request, env) {
+  
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
     switch (request.method) {
