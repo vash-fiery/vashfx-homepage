@@ -1,7 +1,7 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
 
 export default class extends WorkerEntrypoint<Env> {
-  async fetch(request, env) {
+  async fetch(request: Request) {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
     
@@ -10,7 +10,7 @@ export default class extends WorkerEntrypoint<Env> {
         headers: { "Content-Type": "application/json" },
       });
     }
-    return env.ASSETS.fetch(request);
+    return this.env.ASSETS.fetch(request);
     // return new Response(null, { status: 404 });
 
     switch (request.method) {
