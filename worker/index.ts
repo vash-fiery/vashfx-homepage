@@ -1,5 +1,3 @@
-import { env } from "cloudflare:workers";
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
