@@ -1,10 +1,10 @@
 import { env } from "cloudflare:workers";
 import { WorkerEntrypoint } from "cloudflare:workers";
 
-export default class extends WorkerEntrypoint<Env> {
-  async fetch(request, env) {
+export default {
+	async fetch(request, env) {
+		return new Response(`Hi, ${env.NAME}`);
     const url = new URL(request.url);
-    const key = url.pathname.slice(1);
     
     if (url.pathname.startsWith("/api/")) {
       return new Response(JSON.stringify({ name: "Cloudflare" }), {
@@ -12,6 +12,14 @@ export default class extends WorkerEntrypoint<Env> {
       });
     }
     // return new Response(null, { status: 404 });
+    return this.env.ASSETS.fetch(request);
+	},
+};
+
+export default class extends WorkerEntrypoint<Env> {
+  async fetch(request: Request) {
+    const url = new URL(request.url);
+    const key = url.pathname.slice(1);
 
     switch (request.method) {
       case "PUT": {
@@ -53,6 +61,5 @@ export default class extends WorkerEntrypoint<Env> {
           },
         });
       }
-      return this.env.ASSETS.fetch(request);
     }
   };
