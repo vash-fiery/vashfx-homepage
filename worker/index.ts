@@ -54,5 +54,5 @@ export default class extends WorkerEntrypoint<Env> {
         });
       }
       return env.ASSETS.fetch(request);
-    },
+    }
   };
