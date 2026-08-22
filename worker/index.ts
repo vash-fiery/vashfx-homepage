@@ -10,8 +10,8 @@ export default class extends WorkerEntrypoint<Env> {
       return new Response(JSON.stringify({ name: "Cloudflare" }), {
         headers: { "Content-Type": "application/json" },
       });
+      return env.ASSETS.fetch(request);
     }
-    return env.ASSETS.fetch(request);
     // return new Response(null, { status: 404 });
 
     switch (request.method) {
