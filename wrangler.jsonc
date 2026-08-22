@@ -9,7 +9,7 @@
 	"compatibility_date": "2026-08-20",
 	"assets": {
 		"directory": "./dist",
-    "binding": "ASSETS",
+		"binding": "ASSETS",
 		"not_found_handling": "single-page-application"
 	},
 	"observability": {
