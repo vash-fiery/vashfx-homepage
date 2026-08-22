@@ -11,7 +11,7 @@ export default class extends WorkerEntrypoint<Env> {
         headers: { "Content-Type": "application/json" },
       });
     }
-    return this.env.ASSETS.fetch(request);
+    return env.ASSETS.fetch(request);
     // return new Response(null, { status: 404 });
 
     switch (request.method) {
