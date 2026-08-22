@@ -6,10 +6,12 @@ export default class extends WorkerEntrypoint<Env> {
     const key = url.pathname.slice(1);
     
     if (url.pathname.startsWith("/api/")) {
-      return Response.json({
-        name: "Cloudflare",
-      });
-    }
+			return new Response(JSON.stringify({ name: "Cloudflare" }), {
+				headers: { "Content-Type": "application/json" },
+			});
+		}
+
+		return env.ASSETS.fetch(request);
     // return new Response(null, { status: 404 });
 
     switch (request.method) {
