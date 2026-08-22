@@ -3,6 +3,8 @@ import { env } from "cloudflare:workers";
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const key = url.pathname.slice(1);
+    
     if (url.pathname.startsWith("/api/")) {
       return Response.json({
         name: "Cloudflare",
@@ -10,8 +12,6 @@ export default {
     }
     return env.ASSETS.fetch(request);
   
-    const url = new URL(request.url);
-    const key = url.pathname.slice(1);
     switch (request.method) {
       case "PUT":
         await env.BUCKET.put(key, request.body);
