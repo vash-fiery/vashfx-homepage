@@ -41,15 +41,9 @@ export default {
         await env.BUCKET.delete(key);
         return new Response("Deleted!");
       }
-      default:
-        return new Response("Method Not Allowed", {
-          status: 405,
-          headers: {
-            Allow: "PUT, GET, DELETE",
-          },
-        });
     }
-    return new Response(null, { status: 404 });
+
+    // Fallback to ASSETS for unhandled methods
     return env.ASSETS.fetch(request);
   },
 } satisfies ExportedHandler<Env>;
