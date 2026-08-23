@@ -3,12 +3,6 @@ export default {
     const url = new URL(request.url);
     const key = url.pathname.slice(1);
     
-    if (url.pathname.startsWith("/api/")) {
-      return Response.json({
-        name: "Cloudflare",
-      });
-    }
-  
     switch (request.method) {
       case "PUT": {
         await env.BUCKET.put(key, request.body, {
@@ -48,8 +42,13 @@ export default {
             Allow: "PUT, GET, DELETE",
           },
         });
+    },
+    
+    if (url.pathname.startsWith("/api/")) {
+      return Response.json({
+        name: "Cloudflare",
+      });
     }
-
     // Fallback to ASSETS for unhandled methods
     return new Response(null, { status: 404 });
     // return env.ASSETS.fetch(request);
