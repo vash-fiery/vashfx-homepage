@@ -4,7 +4,7 @@ export default {
     const key = url.pathname.slice(1);
     
     if (url.pathname.startsWith("/api/")) {
-      return new Response.json({
+      return Response.json({
         name: "Cloudflare",
       });
     }
