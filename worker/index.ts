@@ -51,7 +51,7 @@ export default {
     }
 
     // Fallback to ASSETS for unhandled methods
-    // return new Response(null, { status: 404 });
+    return new Response(null, { status: 404 });
     // return env.ASSETS.fetch(request);
   },
 } satisfies ExportedHandler<Env>;
