@@ -7,7 +7,7 @@ export default {
       return new Response.json({
         name: "Cloudflare",
       });
-    };
+    }
   
     switch (request.method) {
       case "PUT": {
