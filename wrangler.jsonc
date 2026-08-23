@@ -21,7 +21,8 @@
 	},
 	"upload_source_maps": true,
 	"compatibility_flags": [
-		"nodejs_compat"
+		"nodejs_compat",
+		"nodejs_compat_v2"
 	],
 	"placement": {
 		"mode": "smart"
