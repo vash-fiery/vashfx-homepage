@@ -42,7 +42,7 @@ export default {
             Allow: "PUT, GET, DELETE",
           },
         });
-    },
+    }
     
     if (url.pathname.startsWith("/api/")) {
       return Response.json({
