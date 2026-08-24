@@ -9,8 +9,9 @@ on:
 
 permissions:
   actions: write
-  contents: write
+  contents: read
   issues: write
+  deployments: write
 
 jobs:
   build:
