@@ -270,7 +270,7 @@ module rules, environments, secrets declarations, observability, or generated
 Worker types.
 
 The current configuration declares `ASSETS`, R2 `BUCKET` for bucket `vfx`, and
-Analytics Engine `DS` for dataset `ds_events`, and it omits `account_id`.
+Analytics Engine `DB` for dataset `db_vfx`, and it omits `account_id`.
 GitHub Actions deploys with `CLOUDFLARE_API_TOKEN`; Workers Builds account and
 token settings, if enabled, live in Cloudflare and must be checked separately.
 
@@ -278,7 +278,7 @@ token settings, if enabled, live in Cloudflare and must be checked separately.
    Worker code, and `worker-configuration.d.ts`.
 2. Verify every code binding exists in config and generated types and every
    configured binding is intentional. Names are exact and case-sensitive. The
-   checked-in generated `Env` currently lacks configured binding `DS`, so
+   checked-in generated `Env` currently lacks configured binding `DB`, so
    regeneration is required before code uses it.
 3. Preserve binding names unless the task includes the matching code and
    infrastructure migration.
@@ -312,7 +312,7 @@ the build and dry run pass, and infrastructure or deployment impact is stated.
 
 Use this skill when implementing behavior with a configured Cloudflare
 binding. The repository currently configures `ASSETS`, R2 `BUCKET`, and
-Analytics Engine `DS`.
+Analytics Engine `DB`.
 
 1. Confirm the exact binding in `wrangler.jsonc` and generated `Env` type. If
    they differ, regenerate types and review the diff before writing code.
@@ -329,7 +329,7 @@ Analytics Engine `DS`.
    possible. Return `405` plus `Allow` for unsupported methods.
 5. Do not infer an internet-reachable R2 or Analytics Engine data path merely
    from a binding declaration; verify code reachability from request to sink.
-6. For Analytics Engine `DS`, first regenerate types because the checked-in
+6. For Analytics Engine `DB`, first regenerate types because the checked-in
    `Env` does not yet declare it. Then keep `blobs`, `doubles`, and the sampling
    index in a documented stable order. `writeDataPoint()` is non-blocking and
    is not awaited. Minimize personal data and never record credentials.
@@ -548,15 +548,17 @@ affects build and deployment behavior.
 4. The active deploy job waits for the matrix, then runs `npm run deploy` with
    the `CLOUDFLARE_API_TOKEN` Actions secret for pushes to `main` and manual
    `workflow_dispatch` runs. It is skipped for pull requests.
-5. The workflow currently grants top-level `actions`, `contents`, and `issues`
-   write permissions. Do not assume they are all necessary. When editing the
-   workflow, verify each job's needs against current GitHub documentation and
-   prefer the smallest job-level permissions that preserve required behavior.
+5. The workflow currently grants top-level write access to `actions`, `issues`,
+   and `deployments`, and read access to `contents`. Do not assume each grant
+   is necessary. When editing the workflow, verify every job's needs against
+   current GitHub documentation and prefer the smallest job-level permissions
+   that preserve required behavior.
 6. CodeQL analyzes `actions` and `javascript-typescript` on pushes and pull
    requests to `main`, plus its scheduled weekly run. Preserve the intended
    language matrix and required `security-events` permission.
-7. The labeler runs on `pull_request_target`. Preserve the base-repository
-   checkout and never check out or execute the untrusted pull request head.
+7. The labeler runs on `pull_request_target`, checks out the base repository,
+   and passes `${{ github.token }}` as `repo-token`. Preserve that trust
+   boundary and never check out or execute the untrusted pull request head.
 8. Dependabot checks npm and GitHub Actions daily in `America/Chicago` and
    assigns update pull requests to `vash-fiery`. Validate ecosystem names,
    directory paths, schedule fields, and intended assignees when editing it.
