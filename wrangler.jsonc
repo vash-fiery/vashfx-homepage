@@ -30,8 +30,8 @@
 	],
 	"analytics_engine_datasets": [
 		{ 
-			"binding": "DS", 
-			"dataset": "ds_events" 
+			"binding": "DB", 
+			"dataset": "db_vfx" 
 		}
 	]
 	/**
