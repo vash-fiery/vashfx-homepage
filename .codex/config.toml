@@ -1,3 +1,1 @@
-[mcp_servers.tampermonkey]
-command = "npx"
-args = ["-y", "tampermonkey-mcp@0.0.5"]
+
