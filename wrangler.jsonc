@@ -6,8 +6,9 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "vashfx-homepage",
 	"main": "worker/index.ts",
-	"compatibility_date": "2026-08-22",
+	"compatibility_date": "2026-08-26",
 	"assets": {
+		"directory": "./dist",
 		"binding": "ASSETS",
 		"not_found_handling": "single-page-application"
 	},
