@@ -22,8 +22,7 @@ single-page-application fallback behavior.
 
 ## Repository rules
 
-- Use npm. The lockfile is `package-lock.json`, and `package.json` pins the npm
-  package-manager version.
+- Use npm. The lockfile is `package-lock.json`.
 - Prefer the smallest change that fully solves the requested problem. Preserve
   unrelated work and avoid drive-by refactors.
 - Do not edit `worker-configuration.d.ts` by hand. Change `wrangler.jsonc` first,
