@@ -120,12 +120,10 @@ control merely to make validation green.
 
 ## Coding conventions
 
-- Follow the strict TypeScript settings in the checked-in `tsconfig` files;
-  unused locals and parameters are build failures.
+- Follow the strict TypeScript settings in the checked-in `tsconfig` files.
 - Use React function components and hooks. Preserve accessibility with semantic
   elements, useful alternative text, and labels for interactive controls.
-- Keep state local unless sharing it is necessary. Avoid adding a dependency for
-  behavior that the platform or an existing dependency already provides.
+- Avoid adding a dependency for behavior that the platform or an existing dependency already provides.
 - In Worker handlers, parse request URLs explicitly, validate input before using
   a binding, return intentional status codes, and keep response bodies stable
   for existing consumers.
