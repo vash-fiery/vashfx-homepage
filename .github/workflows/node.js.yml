@@ -77,7 +77,7 @@ jobs:
 
       - name: Upload deployment artifacts
         uses: actions/upload-artifact@v7
-        if: ${{ failure() != true }}
+        if: ${{ failure() != 'failure' }}
         with:
           name: dist-deploy
           path: dist/
