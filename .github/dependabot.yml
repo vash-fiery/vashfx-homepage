@@ -9,7 +9,6 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-      timezone: "America/Chicago"
     commit-message:
       prefix: "[npm] "
     #labels:
@@ -24,7 +23,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-      timezone: "America/Chicago"
     commit-message:
       prefix: "[github] "
     #labels:
