@@ -14,6 +14,10 @@ frontend:
   - changed-files:
       - any-glob-to-any-file: 'src/**'
 
+backend:
+  - changed-files:
+      - any-glob-to-any-file: 'worker/**'
+
 dependencies:
   - changed-files:
       - any-glob-to-any-file: ['package.json', 'yarn.lock', 'package-lock.json']
