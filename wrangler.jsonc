@@ -33,6 +33,12 @@
 			"binding": "DB", 
 			"dataset": "db_vfx" 
 		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "KV",
+			"id": "c3de054f6db341de826fbe3064263dfe"
+		}
 	]
 	/**
 	 * Smart Placement
