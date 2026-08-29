@@ -11,8 +11,8 @@ updates:
       interval: "daily"
     commit-message:
       prefix: "[npm] "
-    #labels:
-    #  - "npm dependencies"
+    labels:
+      - "npm"
     #  - "triage"
     assignees:
       - "vash-fiery"
