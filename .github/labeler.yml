@@ -4,11 +4,8 @@ bug:
 
 documentation:
   - changed-files:
-      - any-glob-to-any-file: ['docs/**/*', '*.md']
-
-Documentation:
-  - changed-files:
       - any-glob-to-any-file: '**/*.md'
+      - any-glob-to-any-file: ['docs/**/*', '*.md']
 
 frontend:
   - changed-files:
