@@ -27,8 +27,8 @@
 		"mode": "smart"
 	},
 	"browser": {
-    "binding": "BROWSER"
-  },
+		"binding": "BROWSER"
+	},
 	"r2_buckets": [
 		{
 			"binding": "BUCKET", // <~ valid JavaScript variable name
