@@ -32,7 +32,7 @@ jobs:
           #cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Lint
         run: npm run lint
@@ -68,7 +68,7 @@ jobs:
           #cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Deploy with Wrangler
         run: npm run deploy
