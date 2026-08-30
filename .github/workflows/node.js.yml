@@ -9,7 +9,7 @@ on:
 
 permissions:
   actions: write
-  contents: read
+  contents: write
   issues: write
   deployments: write
 
@@ -52,7 +52,7 @@ jobs:
     name: Deploy with Node ${{ matrix.node_version }}
     if: ${{ github.event_name != 'pull_request' }}
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
