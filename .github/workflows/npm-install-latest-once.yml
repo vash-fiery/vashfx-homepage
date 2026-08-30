@@ -1,0 +1,43 @@
+name: One-time npm latest install
+
+on:
+  push:
+    paths:
+      - .github/workflows/npm-install-latest-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  install-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install latest npm and clean up
+        shell: bash
+        run: |
+          set +e
+          npm i npm@latest
+          status=$?
+          set -e
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git rm .github/workflows/npm-install-latest-once.yml
+
+          if [ "$status" -eq 0 ]; then
+            git commit -m "chore: install latest npm"
+          else
+            git commit -m "chore: remove one-time npm install workflow"
+          fi
+          git push
+
+          exit "$status"
