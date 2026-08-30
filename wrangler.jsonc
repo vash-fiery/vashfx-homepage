@@ -26,9 +26,13 @@
 	"placement": {
 		"mode": "smart"
 	},
-	"browser": {
-		"binding": "BROWSER"
-	},
+	"d1_databases": [
+		{
+			"binding": "D1", // available in your Worker on env.DB
+			"database_name": "d1_vfx",
+			"database_id": "421f6ab5-bd17-45ba-a895-38ff73be1eae"
+		}
+	],
 	"r2_buckets": [
 		{
 			"binding": "BUCKET", // <~ valid JavaScript variable name
