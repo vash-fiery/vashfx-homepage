@@ -23,9 +23,6 @@
 	"vars": {
 		"ENVIRONMENT": "vashfx_homepage"
 	},
-	"placement": {
-		"mode": "smart"
-	},
 	"d1_databases": [
 		{
 			"binding": "D1", // available in your Worker on env.DB
