@@ -19,12 +19,15 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"vars": {
+		"ENVIRONMENT": "vashfx_homepage"
+	},
 	"placement": {
 		"mode": "smart"
 	},
 	"r2_buckets": [
 		{
-			"binding": "BUCKET", // <~ valid JavaScript variable name
+			"binding": "ASSETS", // <~ valid JavaScript variable name
 			"bucket_name": "vfx"
 		}
 	],
