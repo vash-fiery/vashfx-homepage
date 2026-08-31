@@ -8,31 +8,6 @@ type SubmittedScan = {
   id: string
   target: string
   depth: ScanDepth
-  status: 'queued'
-}
-
-const scanDepths: ScanDepth[] = ['Quick', 'Standard', 'Deep']
-const fallbackError = 'The scan could not be started. Please try again.'
-
-function isSubmittedScan(value: unknown): value is SubmittedScan {
-  if (typeof value !== 'object' || value === null) return false
-
-  const scan = value as Record<string, unknown>
-  return typeof scan.id === 'string'
-    && scan.id.length > 0
-    && typeof scan.target === 'string'
-    && scan.target.length > 0
-    && scanDepths.includes(scan.depth as ScanDepth)
-    && scan.status === 'queued'
-}
-
-function getErrorMessage(value: unknown) {
-  if (typeof value !== 'object' || value === null) return fallbackError
-
-  const error = value as Record<string, unknown>
-  return typeof error.error === 'string' && error.error.length > 0
-    ? error.error
-    : fallbackError
 }
 
 function ShieldIcon() {
@@ -63,17 +38,17 @@ function App() {
         body: JSON.stringify({ target: target.trim(), depth }),
       })
 
-      const body: unknown = await response.json().catch(() => null)
+      if (!response.ok) {
+        throw new Error('The scan could not be started. Please try again.')
+      }
 
-      if (!response.ok) throw new Error(getErrorMessage(body))
-      if (!isSubmittedScan(body)) throw new Error(fallbackError)
-
-      setSubmittedScan(body)
+      const scan = await response.json() as SubmittedScan
+      setSubmittedScan(scan)
     } catch (error) {
       setSubmitError(
         error instanceof Error
           ? error.message
-          : fallbackError,
+          : 'The scan could not be started. Please try again.',
       )
     } finally {
       setIsSubmitting(false)
@@ -114,12 +89,11 @@ function App() {
           <section className="success-card" aria-live="polite">
             <span className="success-icon"><ShieldIcon /></span>
             <div>
-              <span className="status-label">Scan queued</span>
+              <span className="status-label">Scan started</span>
               <h2>{submittedScan.target}</h2>
               <p>
-                Your {submittedScan.depth.toLowerCase()} scan was accepted and
-                queued. Results will appear in your scans dashboard when it
-                finishes.
+                Your {submittedScan.depth.toLowerCase()} scan is now running.
+                Results will appear in your scans dashboard shortly.
               </p>
             </div>
             <button type="button" onClick={() => setSubmittedScan(null)}>

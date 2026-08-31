@@ -5,7 +5,6 @@ type ScanRequest = {
   depth: ScanDepth
 }
 
-const maximumTargetLength = 2048
 const scanDepths: ScanDepth[] = ['Quick', 'Standard', 'Deep']
 
 function isScanRequest(value: unknown): value is ScanRequest {
@@ -14,7 +13,6 @@ function isScanRequest(value: unknown): value is ScanRequest {
   const request = value as Record<string, unknown>
   return typeof request.target === 'string'
     && request.target.trim().length > 0
-    && request.target.trim().length <= maximumTargetLength
     && scanDepths.includes(request.depth as ScanDepth)
 }
 
@@ -22,20 +20,10 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url)
 
-    if (url.pathname === '/api/scans' && request.method !== 'POST') {
-      return Response.json(
-        { error: 'Method not allowed' },
-        { status: 405, headers: { Allow: 'POST' } },
-      )
-    }
-
-    if (url.pathname === '/api/scans') {
+    if (url.pathname === '/api/scans' && request.method === 'POST') {
       const body: unknown = await request.json().catch(() => null)
       if (!isScanRequest(body)) {
-        return Response.json(
-          { error: 'Enter a valid target and scan depth.' },
-          { status: 400 },
-        )
+        return Response.json({ error: 'Invalid scan request' }, { status: 400 })
       }
 
       const scan = {
