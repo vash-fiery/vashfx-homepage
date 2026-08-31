@@ -45,7 +45,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: dist-node-${{ matrix.node_version }}
-          path: ./dist/
+          path: ./dist/*
           if-no-files-found: ignore
 
   deploy:
@@ -80,5 +80,5 @@ jobs:
         if: ${{ failure() != 'failure' }}
         with:
           name: dist-deploy
-          path: ./dist/
+          path: ./dist/*
           if-no-files-found: ignore
