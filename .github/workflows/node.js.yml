@@ -56,7 +56,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: '24.x'
+        node_version: ['24.x']
       fail-fast: false
 
     steps:
