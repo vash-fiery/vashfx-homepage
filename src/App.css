@@ -37,11 +37,9 @@ h1 { font-size: clamp(38px, 5vw, 58px); line-height: 1.06; letter-spacing: -2.8p
 .form-footer { display: flex; align-items: center; justify-content: space-between; padding: 25px 42px; background: #fbfcfa; }
 .privacy-note { display: flex; align-items: center; gap: 9px; color: #7a8581; font-size: 12px; }
 .privacy-note svg { width: 16px; fill: none; stroke: #76904b; stroke-width: 1.7; }
-.submit-error { color: #a32d22; font-size: 12px; margin: 9px 0 0; }
 .start-button, .success-card button { border: 0; border-radius: 8px; background: #193e35; color: #fff; font-weight: 600; padding: 14px 21px; cursor: pointer; box-shadow: 0 4px 12px rgba(25, 62, 53, .16); }
 .start-button span { margin-left: 24px; color: #d9f06b; }
 .start-button:hover, .success-card button:hover { background: #265448; }
-.start-button:disabled { cursor: wait; opacity: .7; }
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #afce54; outline-offset: 3px; }
 .success-card { padding: 42px; display: flex; align-items: center; gap: 24px; }
 .success-icon { width: 58px; height: 58px; flex: 0 0 auto; border-radius: 50%; background: #edf5dc; color: #537731; display: grid; place-items: center; }
