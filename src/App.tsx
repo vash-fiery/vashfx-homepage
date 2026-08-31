@@ -5,9 +5,32 @@ import cloudflareLogo from './assets/cloudflare.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+type ApiResponse = {
+  name?: unknown
+}
+
 function App() {
   const [count, setCount] = useState(0)
   const [name, setName] = useState('unknown')
+  const [isLoadingName, setIsLoadingName] = useState(false)
+
+  const loadName = async () => {
+    setIsLoadingName(true)
+
+    try {
+      const response = await fetch('/api/')
+      if (!response.ok) throw new Error(`API request failed: ${response.status}`)
+
+      const data = await response.json() as ApiResponse
+      if (typeof data.name !== 'string') throw new Error('Invalid API response')
+
+      setName(data.name)
+    } catch {
+      setName('unavailable')
+    } finally {
+      setIsLoadingName(false)
+    }
+  }
 
   return (
     <>
@@ -33,21 +56,17 @@ function App() {
             </button>
           </li>
           <li>
-          <button
-            className="counter"
-            onClick={() => {
-              fetch('/api/')
-                .then((res) => res.json())
-                .then((data) => setName(data.name))
-            }}
-            aria-label='get name'
-          >
-            Name from API is: {name}
-          </button>
+            <button
+              className="counter"
+              type="button"
+              onClick={() => void loadName()}
+              disabled={isLoadingName}
+              aria-label="Get name from API"
+            >
+              Name from API is: {isLoadingName ? 'loading…' : name}
+            </button>
           </li>
         </ul>
-
-
       </section>
 
       <div className="ticks"></div>
@@ -61,19 +80,19 @@ function App() {
           <p>Your questions, answered</p>
           <ul>
             <li>
-              <a href="https://vite.dev/" target="_blank">
+              <a href="https://vite.dev/" target="_blank" rel="noreferrer">
                 <img className="logo" src={viteLogo} alt="" />
                 Explore Vite
               </a>
             </li>
             <li>
-              <a href="https://react.dev/" target="_blank">
+              <a href="https://react.dev/" target="_blank" rel="noreferrer">
                 <img className="button-icon" src={reactLogo} alt="" />
                 Learn more
               </a>
             </li>
             <li>
-              <a href="https://workers.cloudflare.com/" target="_blank">
+              <a href="https://workers.cloudflare.com/" target="_blank" rel="noreferrer">
                 <img className="button-icon" src={cloudflareLogo} alt="" />
                 Workers Docs
               </a>
@@ -88,7 +107,7 @@ function App() {
           <p>Join the Vite community</p>
           <ul>
             <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
+              <a href="https://github.com/vitejs/vite" target="_blank" rel="noreferrer">
                 <svg
                   className="button-icon"
                   role="presentation"
@@ -100,7 +119,7 @@ function App() {
               </a>
             </li>
             <li>
-              <a href="https://chat.vite.dev/" target="_blank">
+              <a href="https://chat.vite.dev/" target="_blank" rel="noreferrer">
                 <svg
                   className="button-icon"
                   role="presentation"
@@ -112,7 +131,7 @@ function App() {
               </a>
             </li>
             <li>
-              <a href="https://x.com/vite_js" target="_blank">
+              <a href="https://x.com/vite_js" target="_blank" rel="noreferrer">
                 <svg
                   className="button-icon"
                   role="presentation"
@@ -124,7 +143,7 @@ function App() {
               </a>
             </li>
             <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
+              <a href="https://bsky.app/profile/vite.dev" target="_blank" rel="noreferrer">
                 <svg
                   className="button-icon"
                   role="presentation"
