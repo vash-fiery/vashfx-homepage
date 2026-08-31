@@ -1,79 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap');
-
 :root {
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text-primary);
-  background: var(--page-background);
-  color-scheme: light;
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
-  --page-background: #f3f6f1;
-  --surface: #fff;
-  --surface-translucent: rgba(250, 252, 248, .88);
-  --surface-subtle: #fbfcfa;
-  --surface-muted: #edf2e9;
-  --surface-selected: #f6f9f1;
-  --surface-success: #edf5dc;
-  --surface-avatar: #dce7db;
-  --text-primary: #1b2b28;
-  --text-heading: #142a25;
-  --text-brand: #173e36;
-  --text-secondary: #63706d;
-  --text-muted: #7b8582;
-  --text-soft: #a2aba7;
-  --border-page: #dfe5dc;
-  --border-card: #dce3d9;
-  --border-divider: #e7ebe5;
-  --border-control: #cfd8ce;
-  --border-option: #d9e0d7;
-  --accent: #587c34;
-  --accent-hover: #265448;
-  --accent-strong: #193e35;
-  --accent-soft: #afce54;
-  --accent-bright: #d9f06b;
-  --danger: #a32d22;
-  --card-shadow: 0 18px 50px rgba(27, 55, 47, .06);
-  --button-shadow: 0 4px 12px rgba(25, 62, 53, .16);
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
 }
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; min-height: 100vh; }
-button, input { font: inherit; }
-button, a { -webkit-tap-highlight-color: transparent; }
-a { color: inherit; }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    color-scheme: dark;
-    --page-background: #0f1815;
-    --surface: #17231f;
-    --surface-translucent: rgba(15, 24, 21, .9);
-    --surface-subtle: #131e1a;
-    --surface-muted: #22322b;
-    --surface-selected: #1d2d25;
-    --surface-success: #26371f;
-    --surface-avatar: #2a3b34;
-    --text-primary: #e3ebe7;
-    --text-heading: #f2f7f4;
-    --text-brand: #eaf3ef;
-    --text-secondary: #b4c0bb;
-    --text-muted: #9caaa4;
-    --text-soft: #74837c;
-    --border-page: #2c3d36;
-    --border-card: #34483f;
-    --border-divider: #2c3d36;
-    --border-control: #42574e;
-    --border-option: #3a4d45;
-    --accent: #9abd5b;
-    --accent-hover: #315f52;
-    --accent-strong: #214b40;
-    --accent-soft: #b8d568;
-    --accent-bright: #d9f06b;
-    --danger: #ff9b8f;
-    --card-shadow: 0 18px 50px rgba(0, 0, 0, .24);
-    --button-shadow: 0 4px 12px rgba(0, 0, 0, .28);
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+#root {
+  width: 1126px;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
 }
