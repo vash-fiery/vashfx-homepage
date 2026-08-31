@@ -31,6 +31,7 @@ npm ci
 | --- | --- |
 | `npm run dev` | Start Vite and the local Cloudflare development environment |
 | `npm run lint` | Run Oxlint |
+| `npm test` | Run the Worker API regression tests |
 | `npm run build` | Type-check all projects and build the production bundle |
 | `npm run preview` | Build and preview the production bundle locally |
 | `npm run cf-typegen` | Regenerate Cloudflare binding types |
@@ -70,16 +71,17 @@ For application, Worker, dependency, or configuration changes, run:
 
 ```sh
 npm run lint
+npm test
 npm run build
 ```
 
 Also verify the affected behavior locally with `npm run dev` when practical.
 For route-related changes, check both the SPA and the relevant `/api/` path.
 
-There is currently no automated test script. Do not claim tests passed unless a
-test suite has been added and run. Documentation-only changes do not require
-runtime checks, but still review Markdown structure, commands, and paths for
-accuracy.
+Worker API tests use Node's built-in test runner. Do not claim tests passed
+unless the relevant suite has been run. Documentation-only changes do not
+require runtime checks, but still review Markdown structure, commands, and
+paths for accuracy.
 
 ## Generated and local files
 
