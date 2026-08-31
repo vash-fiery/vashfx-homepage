@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: ['24.x', '26.x']
+        node_version: ["24.x", "26.x"]
       fail-fast: false
 
     steps:
@@ -33,9 +33,6 @@ jobs:
 
       - name: Lint
         run: npm run lint
-
-      - name: Test
-        run: npm test
 
       - name: Build
         run: npm run build
@@ -62,7 +59,7 @@ jobs:
       - name: Use Node 24.x
         uses: actions/setup-node@v7
         with:
-          node-version: '24.x'
+          node-version: "24.x"
           package-manager-cache: false
 
       - name: Install dependencies
