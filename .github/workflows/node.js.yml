@@ -8,10 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
-  contents: write
-  issues: write
-  deployments: write
+  contents: read
 
 jobs:
   build:
@@ -37,6 +34,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
 
@@ -49,22 +49,20 @@ jobs:
           if-no-files-found: ignore
 
   deploy:
-    name: Deploy with Node ${{ matrix.node_version }}
-    if: ${{ github.event_name != 'pull_request' }}
+    name: Deploy with Node 24.x
+    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     needs: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node_version: ['24.x']
-      fail-fast: false
+    runs-on: ubuntu-latest
+    concurrency:
+      group: cloudflare-production
+      cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v7
-      - name: Use Node ${{ matrix.node_version }}
+      - name: Use Node 24.x
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node_version }}
+          node-version: '24.x'
           package-manager-cache: false
 
       - name: Install dependencies
@@ -77,8 +75,7 @@ jobs:
 
       - name: Upload deployment artifacts
         uses: actions/upload-artifact@v7
-        if: ${{ failure() != 'failure' }}
         with:
-          name: dist-deploy
+          name: dist-deploy-${{ github.sha }}
           path: ./dist/*
           if-no-files-found: ignore
