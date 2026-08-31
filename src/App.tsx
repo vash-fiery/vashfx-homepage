@@ -4,6 +4,12 @@ import './App.css'
 
 type ScanDepth = 'Quick' | 'Standard' | 'Deep'
 
+type SubmittedScan = {
+  id: string
+  target: string
+  depth: ScanDepth
+}
+
 function ShieldIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -16,11 +22,37 @@ function ShieldIcon() {
 function App() {
   const [target, setTarget] = useState('')
   const [depth, setDepth] = useState<ScanDepth>('Standard')
-  const [submittedTarget, setSubmittedTarget] = useState('')
+  const [submittedScan, setSubmittedScan] = useState<SubmittedScan | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
-  const startScan = (event: FormEvent<HTMLFormElement>) => {
+  const startScan = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setSubmittedTarget(target.trim())
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    try {
+      const response = await fetch('/api/scans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: target.trim(), depth }),
+      })
+
+      if (!response.ok) {
+        throw new Error('The scan could not be started. Please try again.')
+      }
+
+      const scan = await response.json() as SubmittedScan
+      setSubmittedScan(scan)
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'The scan could not be started. Please try again.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -53,18 +85,18 @@ function App() {
           </p>
         </header>
 
-        {submittedTarget ? (
+        {submittedScan ? (
           <section className="success-card" aria-live="polite">
             <span className="success-icon"><ShieldIcon /></span>
             <div>
               <span className="status-label">Scan started</span>
-              <h2>{submittedTarget}</h2>
+              <h2>{submittedScan.target}</h2>
               <p>
-                Your {depth.toLowerCase()} scan is now running. Results will
-                appear in your scans dashboard shortly.
+                Your {submittedScan.depth.toLowerCase()} scan is now running.
+                Results will appear in your scans dashboard shortly.
               </p>
             </div>
-            <button type="button" onClick={() => setSubmittedTarget('')}>
+            <button type="button" onClick={() => setSubmittedScan(null)}>
               Scan another target
             </button>
           </section>
@@ -121,11 +153,21 @@ function App() {
             </div>
 
             <footer className="form-footer">
-              <div className="privacy-note">
-                <ShieldIcon /> Only scan systems you have permission to test.
+              <div>
+                <div className="privacy-note">
+                  <ShieldIcon /> Only scan systems you have permission to test.
+                </div>
+                {submitError && (
+                  <p className="submit-error" role="alert">{submitError}</p>
+                )}
               </div>
-              <button className="start-button" type="submit">
-                Start scan <span aria-hidden="true">→</span>
+              <button
+                className="start-button"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Starting scan…' : 'Start scan'}
+                {!isSubmitting && <span aria-hidden="true">→</span>}
               </button>
             </footer>
           </form>
