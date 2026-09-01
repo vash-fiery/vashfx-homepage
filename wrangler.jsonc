@@ -5,12 +5,12 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "vashfx-homepage",
-	"main": "./worker/index.ts",
+	"main": "worker/index.ts",
 	"compatibility_date": "2026-08-29",
 	"assets": {
 		"directory": "./dist",
 		"not_found_handling": "single-page-application",
-		"binding": "BUCKET",
+		"binding": "ASSETS",
 	},
 	"observability": {
 		"enabled": true
@@ -21,7 +21,7 @@
 	],
 	"r2_buckets": [
 		{
-			"binding": "ASSETS", // <~ valid JavaScript variable name
+			"binding": "BUCKET", // <~ valid JavaScript variable name
 			"bucket_name": "assets"
 		}
 	],
