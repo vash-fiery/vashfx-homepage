@@ -19,6 +19,12 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"r2_buckets": [
+		{
+			"binding": "ASSETS", // <~ valid JavaScript variable name
+			"bucket_name": "assets"
+		}
+	],
 	"analytics_engine_datasets": [
 		{ 
 			"binding": "DB", 
