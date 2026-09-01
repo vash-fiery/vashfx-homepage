@@ -10,7 +10,7 @@
 	"assets": {
 		"directory": "./dist",
 		"not_found_handling": "single-page-application",
-		"binding": "ASSETS",
+		"binding": "BUCKET",
 	},
 	"observability": {
 		"enabled": true
