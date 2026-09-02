@@ -49,7 +49,7 @@ jobs:
           if-no-files-found: ignore
 
   deploy:
-    name: Deploy with Node ${{ matrix.node_version }}
+    name: Deploy with Node
     if: ${{ github.event_name != 'pull_request' }}
     needs: build
     runs-on: ${{ matrix.os }}
