@@ -1,4 +1,4 @@
-name: "Cloudflare Worker"
+name: "CI"
 
 on:
   push:
@@ -45,40 +45,5 @@ jobs:
         if: ${{ failure() }}
         with:
           name: dist-node-${{ matrix.node_version }}
-          path: dist/*
-          if-no-files-found: ignore
-
-  deploy:
-    name: Deploy with Node
-    if: ${{ github.event_name != 'pull_request' }}
-    needs: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node_version: ["24.x.x"]
-      fail-fast: false
-
-    steps:
-      - uses: actions/checkout@v7
-      - name: Use Node ${{ matrix.node_version }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ matrix.node_version }}
-          package-manager-cache: false
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Deploy with Wrangler
-        run: npm run deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
-      - name: Upload deployment artifacts
-        uses: actions/upload-artifact@v7
-        if: ${{ success() }}
-        with:
-          name: dist-deploy
           path: dist/*
           if-no-files-found: ignore
