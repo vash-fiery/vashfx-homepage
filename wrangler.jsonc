@@ -19,24 +19,6 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-	"r2_buckets": [
-		{
-			"binding": "BUCKET", // <~ valid JavaScript variable name
-			// "bucket_name": "assets"
-		}
-	],
-	"analytics_engine_datasets": [
-		{ 
-			"binding": "DB", 
-			"dataset": "db_vfx" 
-		}
-	],
-	"kv_namespaces": [
-		{
-			"binding": "KV",
-			// "id": "c3de054f6db341de826fbe3064263dfe"
-		}
-	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
