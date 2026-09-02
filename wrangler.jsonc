@@ -25,6 +25,9 @@
 			"bucket_name": "assets"
 		}
 	],
+	"images": {
+		"binding": "IMAGES", // available in your Worker on env.IMAGES
+	},
 	"analytics_engine_datasets": [
 		{ 
 			"binding": "DB", 
