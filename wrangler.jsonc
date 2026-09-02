@@ -22,7 +22,7 @@
 	"r2_buckets": [
 		{
 			"binding": "BUCKET", // <~ valid JavaScript variable name
-			"bucket_name": "assets"
+			// "bucket_name": "assets"
 		}
 	],
 	"images": {
