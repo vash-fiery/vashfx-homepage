@@ -22,7 +22,7 @@
 	"r2_buckets": [
 		{
 			"binding": "BUCKET", // <~ valid JavaScript variable name
-			// "bucket_name": "assets"
+			"bucket_name": "assets"
 		}
 	],
 	"analytics_engine_datasets": [
@@ -34,7 +34,7 @@
 	"kv_namespaces": [
 		{
 			"binding": "KV",
-			// "id": "c3de054f6db341de826fbe3064263dfe"
+			"id": "c3de054f6db341de826fbe3064263dfe"
 		}
 	]
 	/**
