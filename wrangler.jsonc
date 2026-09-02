@@ -19,12 +19,6 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-	"routes": [
-    {
-      "pattern": "vashfx.org",
-      "custom_domain": true
-    }
-  ],
 	"r2_buckets": [
 		{
 			"binding": "BUCKET", // <~ valid JavaScript variable name
