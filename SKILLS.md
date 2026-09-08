@@ -4,7 +4,9 @@
 
 This file describes the practical skills and repeatable workflows agents should use when working in this repository.
 
-`AGENTS.md` remains the repository-wide policy and instruction source. Read it first. This file complements it by describing how to approach common classes of work in `vash-fiery/vashfx-homepage`.
+[AGENTS.md](AGENTS.md) remains the repository-wide policy and instruction source. Read it first. This file complements it by describing how to approach common classes of work in `vash-fiery/vashfx-homepage`.
+
+This is a repository workflow catalogue, not an installable agent skill package. Use tools and installed skills that are actually available in the current environment; a workflow name here does not install or grant access to a plugin.
 
 A skill is a workflow, not permission to broaden scope. Use only the skills needed for the task, keep changes focused, and do not deploy or mutate remote Cloudflare resources unless the user explicitly requests it.
 
@@ -21,6 +23,8 @@ Typical routing:
 - GitHub Actions changes → **CI/workflow maintenance**, **Security review**, then **Validation**.
 - Bug fixing → **Repository reconnaissance**, **Debugging**, the relevant implementation skill, **Regression testing**, then **Validation**.
 - Documentation-only work → **Documentation maintenance** and a final diff review.
+- Publishing repository changes → **GitHub delivery**, with validation appropriate to the changed files.
+- Explicit deployment work → **Deployment**, after validation and target review.
 
 ## Repository reconnaissance
 
@@ -31,17 +35,20 @@ Use this skill before making non-trivial changes or whenever repository behavior
 Start with the files closest to the requested change. Common anchors include:
 
 - `AGENTS.md`
+- `SKILLS.md`
 - `package.json`
 - `package-lock.json`
 - `src/`
 - `worker/index.ts`
 - `worker/index.test.ts`
 - `vite.config.ts`
+- `tsconfig.json` and its referenced configurations
 - `wrangler.jsonc`
 - `worker-configuration.d.ts`
 - `.oxlintrc.json`
 - `.github/workflows/`
 - `.github/dependabot.yml`
+- `.github/labeler.yml`
 
 ### Goals
 
@@ -51,18 +58,34 @@ Start with the files closest to the requested change. Common anchors include:
 - Locate tests that define route, API, or runtime boundaries.
 - Verify whether a file is generated before editing it manually.
 - Check whether the task touches Cloudflare configuration, dependency install scripts, CI permissions, or secrets.
+- Check the working tree, branch, current target commit, and relevant open PRs before editing or publishing.
+- Read dependency ranges and resolved versions separately; do not copy a manifest range as the installed version.
+
+### Maintenance drift to verify
+
+At the 2026-09-08 review, the generated header in `worker-configuration.d.ts` recorded compatibility date `2026-08-29`, while `wrangler.jsonc` used `2026-09-02`. The lockfile also resolved workerd versions newer than the version-specific workerd entries in `allowScripts`.
+
+Recheck these source files before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update or remove this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
+
+## GitHub delivery
+
+Use when committing or publishing repository changes.
+
+1. Read the target branch and existing relevant PRs using the connected GitHub tools or authenticated Git.
+2. Preserve local user work and base the patch on the current target commit.
+3. Use a topic branch and stage only intended files.
+4. Complete the validation required by the change and review the final diff.
+5. Push the topic branch and open or update a PR targeting `main`. Verify the remote diff and report the PR link and known check status.
+
+Every push to `main`, including a documentation-only merge, can deploy to Cloudflare after CI succeeds. Under `AGENTS.md`, a routine update request should be delivered through a PR; do not push or merge to `main` unless the deployment-affecting action is authorized. Do not force-push or overwrite concurrent work.
 
 ## Frontend React
 
 Use for work under `src/`, React components, rendering logic, client-side behavior, and application structure.
 
-### Current baseline
+### Sources of truth
 
-- React 19.2.x
-- React DOM 19.2.x
-- TypeScript 6.0.x
-- Vite 8.2.x
-- `@vitejs/plugin-react` 6.x
+Read the stack overview in [AGENTS.md](AGENTS.md#current-project-baseline), dependency ranges in `package.json`, resolved versions in `package-lock.json`, and plugin configuration in `vite.config.ts`. Avoid maintaining another version snapshot here.
 
 ### Workflow
 
@@ -72,6 +95,8 @@ Use for work under `src/`, React components, rendering logic, client-side behavi
 4. Reuse existing dependencies and Web Platform APIs before adding packages.
 5. Keep user-visible behavior accessible and responsive.
 6. Run the required validation before completion.
+
+For the existing API button, preserve the loading/disabled state, the `response.ok` check, validation that `name` is a string, and the `unavailable` fallback. Exercise success and failure behavior when changing this interaction.
 
 ### Guardrails
 
@@ -112,10 +137,13 @@ Use for `worker/index.ts` and other Worker request-handling logic.
 
 - Wrangler runs the Worker first for `/api/*`.
 - Paths beginning with `/api/` are handled by the Worker.
+- Matching requests return HTTP `200` and JSON `{ "name": "Cloudflare" }`; the handler currently has no method restriction.
 - `/api` without the trailing slash is not currently an API route.
 - `/apiary` and similar lookalike paths are not API routes.
 - Non-API requests that reach the Worker return an empty `404` response.
 - Static SPA assets are served from `dist` by the Cloudflare assets binding.
+
+`handleRequest` is exported for tests and is used by the default `fetch` handler. Keep this test seam unless the task deliberately changes the public module interface. Distinguish direct-handler responses from Cloudflare asset/SPA routing.
 
 ### Workflow
 
@@ -144,7 +172,7 @@ Review Worker changes for:
 
 Use for API behavior changes, Worker bug fixes, and route changes.
 
-The repository uses Node's built-in test runner with TypeScript stripping through the existing npm script.
+The repository uses Node's built-in test runner with TypeScript stripping through the existing npm script: `node --test --experimental-strip-types worker/index.test.ts`. Use the CI-supported Node 24/26 versions. This command executes tests without type checking; `npm run build` supplies the TypeScript project checks.
 
 ### Primary command
 
@@ -170,22 +198,15 @@ For route work, explicitly consider cases such as:
 - malformed or unsupported input;
 - expected non-API `404` behavior.
 
+The current tests cover `/api/`, `/api/status?source=test`, `/`, `/api`, and `/apiary`, including JSON content type and response bodies. They do not cover browser interaction or the Cloudflare asset layer. For changes to SPA fallback, bindings, or Worker-first routing, supplement handler tests with local dev/preview checks of the affected URLs and report which runtime was exercised.
+
 ## Cloudflare configuration
 
 Use for `wrangler.jsonc`, runtime compatibility settings, assets configuration, bindings, observability, source maps, or Worker routing configuration.
 
-### Current baseline
+### Sources of truth
 
-- Worker name: `vashfx-homepage`
-- Entry point: `worker/index.ts`
-- Compatibility date: `2026-09-02`
-- Compatibility flag: `nodejs_compat`
-- Assets directory: `./dist`
-- Assets binding: `ASSETS`
-- SPA not-found handling enabled
-- Worker-first route: `/api/*`
-- Observability enabled
-- Source-map upload enabled
+Read [wrangler.jsonc](wrangler.jsonc) for the Worker name, entry point, compatibility settings, assets, observability, and source-map configuration. The important settings and policy are summarized in [AGENTS.md](AGENTS.md#cloudflare-and-wrangler-rules). Read generated bindings from `worker-configuration.d.ts` and compare its header with the current configuration.
 
 ### Workflow
 
@@ -193,7 +214,7 @@ Use for `wrangler.jsonc`, runtime compatibility settings, assets configuration, 
 2. Make the smallest persistent configuration change possible.
 3. Preserve useful comments.
 4. Do not bump `compatibility_date` as unrelated maintenance.
-5. Run Cloudflare type generation when runtime typing assumptions change.
+5. Run Cloudflare type generation when runtime typing assumptions change, before the final lint/test/build pass.
 6. Review generated changes before committing them.
 7. Run full validation.
 
@@ -215,9 +236,10 @@ npm run cf-typegen
 
 1. Make the configuration change first.
 2. Run `npm run cf-typegen`.
-3. Review `worker-configuration.d.ts`.
+3. Review `worker-configuration.d.ts`, including its generation header and `Env`/`ASSETS` declarations, against the current configuration and resolved toolchain.
 4. Commit generated changes only when they reflect the intentional configuration change.
 5. Never hand-edit generated sections to hide a configuration/type mismatch.
+6. Run lint, tests, and build after generation so the final checks include the generated file.
 
 ## Dependency maintenance
 
@@ -233,6 +255,8 @@ Use for `package.json`, `package-lock.json`, dependency upgrades, removals, or a
 6. Review transitive impact for privileged or security-sensitive packages.
 7. Run lint, tests, and build.
 
+Use `npm ci` for an unchanged, synchronized manifest and lockfile. Use `npm install` for intentional dependency or lockfile changes. Review both direct and nested resolutions, especially Wrangler, the Cloudflare Vite plugin, and workerd, rather than assuming one shared runtime version.
+
 Do not bundle unrelated dependency upgrades into another task.
 
 ## Supply-chain review
@@ -240,6 +264,8 @@ Do not bundle unrelated dependency upgrades into another task.
 Use whenever dependency lifecycle scripts, package provenance, lockfile changes, or `allowScripts` are involved.
 
 `package.json` contains an `allowScripts` policy. Treat it as a security control.
+
+Compare the version-specific entries with lockfile packages marked `hasInstallScript`, including nested workerd resolutions. Verify how the active package-manager version enforces the policy; do not claim scripts were blocked merely because this field exists. If entries and resolutions differ, report the mismatch and review the affected scripts before changing the policy.
 
 ### Rules
 
@@ -292,7 +318,7 @@ Use for files under `.github/workflows/` and dependency/security automation.
 
 ### Current CI expectation
 
-The main Node workflow runs on Ubuntu with Node 24 and Node 26 and executes:
+The main Node workflow runs on Ubuntu with Node 24 and Node 26 for pushes to `main`, PRs targeting `main`, and manual dispatch. It executes:
 
 ```sh
 npm ci
@@ -300,6 +326,10 @@ npm run lint
 npm test
 npm run build
 ```
+
+After successful matrix validation, the `deploy` job runs on Node 24 only when the event is a push to `main`. It builds and invokes `npm run deploy` with Cloudflare repository secrets. There is no documentation-only path exclusion. PR and manual-dispatch runs do not deploy under the current condition.
+
+CodeQL scans `javascript-typescript` and `actions` on pushes, PRs, and its weekly schedule. Dependabot checks npm and GitHub Actions daily. PR labels come from `.github/labeler.yml` through the existing `pull_request_target` labeler workflow.
 
 ### Workflow rules
 
@@ -309,6 +339,7 @@ npm run build
 - Treat artifact upload, caching, script execution, and token permissions as security-sensitive.
 - Do not interpolate untrusted PR or issue data directly into shell commands.
 - Do not switch privileged jobs to `pull_request_target` without a specific security-reviewed reason.
+- Keep the existing privileged labeler limited to trusted base-repository checkout/configuration and labeling. Do not execute PR-head code or install PR-controlled dependencies in that workflow.
 - Do not weaken CodeQL, Dependabot, or validation merely to obtain a green run.
 
 ## Security review
@@ -342,9 +373,12 @@ Use for Markdown, comments, README material, agent instructions, and other non-e
 - Do not document deployment or configuration behavior that the repository does not actually use.
 - Update adjacent documentation when a behavior change would otherwise leave instructions stale.
 - Avoid copying version numbers into many files unless they provide real operational value.
+- Verify command descriptions against npm scripts, routing claims against both Worker code and Wrangler configuration, and CI/deployment claims against workflow triggers and job conditions.
+- Verify relative Markdown links and referenced repository paths, and keep policy in `AGENTS.md` consistent with workflows in this file.
+- Run `git diff --check` and confirm the diff contains only intended documentation files. No dependency installation is needed for this check.
 - Review the final diff for accidental executable changes.
 
-Documentation-only changes may skip executable validation when appropriate, but the final response should state what was skipped and why.
+Documentation-only changes may skip `npm run lint`, `npm test`, `npm run build`, and `npm run cf-typegen` when executable inputs are unchanged. State those skips and the reason in the final response. Follow **GitHub delivery** because a documentation push to `main` still triggers deployment.
 
 ## Validation
 
@@ -365,13 +399,15 @@ Run `npm run cf-typegen` additionally when Cloudflare runtime configuration or t
 A useful default sequence is:
 
 1. the smallest targeted check while iterating;
-2. `npm run lint`;
-3. `npm test`;
-4. `npm run build`;
-5. `npm run cf-typegen` when required;
-6. final diff/security review.
+2. `npm run cf-typegen` when required;
+3. `npm run lint`;
+4. `npm test`;
+5. `npm run build`;
+6. `git diff --check` and final diff/security review.
 
 Do not claim validation passed unless the commands were actually run successfully.
+
+`npm run preview` runs a build before local preview. Use it when production-build behavior needs manual inspection. It is distinct from `npm run deploy`, which publishes remotely. There is no dedicated browser-test or typecheck npm script; use the actual scripts and report any additional checks precisely.
 
 ## Deployment
 
@@ -393,6 +429,8 @@ Deployment is a remote mutation. Before running it:
 
 Do not treat a normal code or documentation task as implicit deployment approval.
 
+The other deployment path is a push or merge to `main`, which starts CI and can invoke the same deploy script after validation. Review this side effect before an authorized release. A topic-branch PR provides validation without meeting the workflow's deployment condition.
+
 ## Completion workflow
 
 Before reporting any completed change:
@@ -403,6 +441,7 @@ Before reporting any completed change:
 4. Run the validation required by the type of change.
 5. Confirm generated files are intentional.
 6. Confirm `allowScripts` was not broadened unintentionally.
-7. Confirm no remote Cloudflare mutation occurred unless explicitly requested.
+7. Confirm no remote Cloudflare mutation occurred unless explicitly requested, including automatic deployment from a push or merge to `main`.
 8. Summarize the files changed and the behavior or documentation added.
 9. List validation commands actually run, including failures or intentional skips.
+10. Verify published changes and link the branch or PR. Report remote checks separately from local checks, and leave the PR unmerged when deployment was not authorized.
