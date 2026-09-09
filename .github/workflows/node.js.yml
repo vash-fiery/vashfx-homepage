@@ -47,7 +47,7 @@ jobs:
           # name: dist-node-${{ matrix.node_version }}
           path: dist
           if-no-files-found: ignore
-          archive: false
+          # archive: false
 
   deploy:
     name: Deploy to Cloudflare Workers
