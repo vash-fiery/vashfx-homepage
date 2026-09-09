@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v7
         if: ${{ success() }}
         with:
-          name: dist-node-${{ matrix.node_version }}
+          # name: dist-node-${{ matrix.node_version }}
           path: dist
           if-no-files-found: ignore
           archive: false
