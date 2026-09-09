@@ -12,6 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7 # Uploads repository content to the runner
+    - name: Labeler
       with:
         repository: "vash-fiery/vashfx-homepage" # The one of the available inputs, visit https://github.com/actions/checkout#readme to find more
 
