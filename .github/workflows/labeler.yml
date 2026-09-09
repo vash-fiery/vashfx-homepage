@@ -3,12 +3,13 @@ name: Labeler
 on:
   - pull_request_target
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   labeler:
-    permissions:
-      contents: read
-      pull-requests: write
-      issues: write
     runs-on: ubuntu-latest
 
     steps:
@@ -21,4 +22,4 @@ jobs:
       uses: actions/labeler@v7
       with:
         repo-token: ${{ github.token }}
-        configuration-path: '.github/labeler.yml'
+        configuration-path: .github/labeler.yml
