@@ -60,7 +60,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "24"
+          node-version: "24.x.x"
           package-manager-cache: false
       
       - name: Install dependencies
