@@ -63,21 +63,21 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-At the 2026-09-08 review, the generated header in `worker-configuration.d.ts` recorded compatibility date `2026-08-29`, while `wrangler.jsonc` used `2026-09-02`. The lockfile also resolved workerd versions newer than the version-specific workerd entries in `allowScripts`.
+At the 2026-09-14 review, the generated header in `worker-configuration.d.ts` recorded compatibility date `2026-08-29`, while `wrangler.jsonc` used `2026-09-09`. The package manifest also included a newer direct `workerd` range than the version-specific workerd entries in `allowScripts`.
 
-Recheck these source files before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update or remove this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
+Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update or remove this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
 
 ## GitHub delivery
 
 Use when committing or publishing repository changes.
 
-1. Read the target branch and existing relevant PRs using the connected GitHub tools or authenticated Git.
+1. Read the target branch, latest target commit, and existing relevant PRs using the connected GitHub tools or authenticated Git.
 2. Preserve local user work and base the patch on the current target commit.
 3. Use a topic branch and stage only intended files.
 4. Complete the validation required by the change and review the final diff.
 5. Push the topic branch and open or update a PR targeting `main`. Verify the remote diff and report the PR link and known check status.
 
-Every push to `main`, including a documentation-only merge, can deploy to Cloudflare after CI succeeds. Under `AGENTS.md`, a routine update request should be delivered through a PR; do not push or merge to `main` unless the deployment-affecting action is authorized. Do not force-push or overwrite concurrent work.
+Every push to `main`, including a documentation-only merge, can deploy to Cloudflare after CI succeeds because the deployment job is conditioned on push events to `main`. Under `AGENTS.md`, a routine update request should be delivered through a PR; do not push or merge to `main` unless the deployment-affecting action is authorized. Do not force-push or overwrite concurrent work.
 
 ## Frontend React
 
@@ -206,7 +206,7 @@ Use for `wrangler.jsonc`, runtime compatibility settings, assets configuration, 
 
 ### Sources of truth
 
-Read [wrangler.jsonc](wrangler.jsonc) for the Worker name, entry point, compatibility settings, assets, observability, and source-map configuration. The important settings and policy are summarized in [AGENTS.md](AGENTS.md#cloudflare-and-wrangler-rules). Read generated bindings from `worker-configuration.d.ts` and compare its header with the current configuration.
+Read [wrangler.jsonc](wrangler.jsonc) for the Worker name, entry point, compatibility settings, compatibility flags, assets, observability, and source-map configuration. The important settings and policy are summarized in [AGENTS.md](AGENTS.md#cloudflare-and-wrangler-rules). Read generated bindings from `worker-configuration.d.ts` and compare its header with the current configuration.
 
 ### Workflow
 
@@ -349,7 +349,7 @@ Use for any change that handles untrusted input, modifies dependencies, changes 
 Before completion, inspect the diff for:
 
 - credentials, API keys, tokens, cookies, or personal data;
-- `.env`, `.dev.vars`, Wrangler state, logs, or build output;
+- unapproved `.env`, `.dev.vars`, Wrangler state, logs, or build output;
 - XSS or unsafe HTML rendering;
 - command, path, template, URL, header, or query injection;
 - SSRF;
@@ -375,6 +375,7 @@ Use for Markdown, comments, README material, agent instructions, and other non-e
 - Avoid copying version numbers into many files unless they provide real operational value.
 - Verify command descriptions against npm scripts, routing claims against both Worker code and Wrangler configuration, and CI/deployment claims against workflow triggers and job conditions.
 - Verify relative Markdown links and referenced repository paths, and keep policy in `AGENTS.md` consistent with workflows in this file.
+- For the tracked root `.env`, verify values remain public-safe Vite configuration only. Keep real secrets in ignored local files or Cloudflare secret storage when explicitly requested.
 - Run `git diff --check` and confirm the diff contains only intended documentation files. No dependency installation is needed for this check.
 - Review the final diff for accidental executable changes.
 
@@ -437,7 +438,7 @@ Before reporting any completed change:
 
 1. Review the final diff.
 2. Confirm the patch is limited to the requested scope.
-3. Confirm no secrets or local-only artifacts were added.
+3. Confirm no secrets or local-only artifacts were added or exposed through tracked environment files.
 4. Run the validation required by the type of change.
 5. Confirm generated files are intentional.
 6. Confirm `allowScripts` was not broadened unintentionally.
