@@ -15,14 +15,14 @@ The repository currently uses:
 - React 19 + React DOM 19
 - TypeScript 6
 - Vite 8 with `@vitejs/plugin-react` 6
-- Cloudflare Workers with `@cloudflare/vite-plugin`, Wrangler, and workerd
+- Cloudflare Workers with `@cloudflare/vite-plugin`, Wrangler 4, and workerd
 - Oxlint with React, TypeScript, and Oxc plugins
 - Node.js built-in test runner
 - npm with a committed `package-lock.json`
 
 The CI matrix runs on Node 24 and Node 26. Changes must remain compatible with both versions unless the task explicitly updates the supported runtime matrix.
 
-Read dependency ranges from [package.json](package.json) and resolved versions from [package-lock.json](package-lock.json). These can differ, and transitive packages can resolve to multiple versions. Avoid duplicating patch-version snapshots in agent documentation or performing drive-by upgrades.
+Read dependency ranges from [package.json](package.json) and resolved versions from [package-lock.json](package-lock.json). These can differ, and transitive packages can resolve to multiple versions. The major versions above are a repository baseline, not a substitute for checking those files. Avoid duplicating patch-version snapshots in agent documentation or performing drive-by upgrades.
 
 `@openai/codex` is a development dependency. The current frontend and Worker do not contain an OpenAI API integration; do not infer application features from development-tool dependencies.
 
@@ -62,7 +62,7 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 
 ## GitHub workflow and deployment boundary
 
-- Inspect the working tree, current branch, and applicable instructions before editing. Preserve existing user changes and use a separate checkout when necessary.
+- Inspect the working tree, current branch, applicable instructions, and relevant open PRs before editing. Preserve existing user changes and use a separate checkout when necessary.
 - Start routine changes from the current target branch, normally `main`, and use a topic branch and pull request. Check for an existing relevant PR before creating another one.
 - A push or merge to `main` triggers the CI deployment job after the build matrix succeeds. There is no documentation path exclusion: Markdown-only changes also trigger this workflow.
 - Treat a direct push or merge to `main` as a deployment action under the authorization rules above. A routine code or documentation update should remain in a PR unless the user has authorized that deployment-affecting action.
@@ -180,8 +180,8 @@ Current important settings include:
 
 - Worker name: `vashfx-homepage`
 - Worker entry point: `worker/index.ts`
-- Compatibility date: `2026-09-02`
-- Compatibility flag: `nodejs_compat`
+- Compatibility date: `2026-09-09`
+- `nodejs_compat` enabled through `compatibility_flags`
 - Assets directory: `./dist`
 - Assets binding: `ASSETS`
 - SPA not-found handling enabled
@@ -260,10 +260,12 @@ The repository ignores local artifacts including:
 - `dist-ssr/`
 - `.wrangler/`
 - `.dev.vars*` except `.dev.vars.example`
-- `.env*` except `.env.example`
+- untracked `.env*` files except `.env.example`
 - common logs and editor-local files
 
 Do not force-add ignored secret, build, Wrangler, or editor-local files.
+
+The tracked root `.env` currently contains public Vite configuration. Keep it free of secrets and local-only values; `.gitignore` does not protect files that are already tracked.
 
 `worker-configuration.d.ts` is committed generated output. Regenerate it with `npm run cf-typegen` when required instead of editing generated runtime types manually.
 
@@ -298,7 +300,7 @@ When changing workflows:
 Before reporting completion:
 
 1. Review the final diff for unintended changes.
-2. Confirm no secrets or local-only artifacts were added.
+2. Confirm no secrets or local-only artifacts were added or exposed through tracked environment files.
 3. Run `npm run lint` when applicable.
 4. Run `npm test` when applicable.
 5. Run `npm run build` when applicable.
