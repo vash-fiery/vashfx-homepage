@@ -42,7 +42,7 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 - `package.json` and `package-lock.json` — npm scripts, dependency ranges, and resolved dependency state.
 - `tsconfig.json` — project references for the app, Node tooling, and Worker TypeScript configurations.
 - `.oxlintrc.json` — lint configuration.
-- `.github/workflows/node.js.yml` — Node 24/26 validation and automatic Cloudflare deployment on pushes to `main`.
+- `.github/workflows/node.js.yml` — Node 24/26 validation; its Cloudflare deployment job is currently commented out.
 - `.github/workflows/codeql.yml` — CodeQL security scanning.
 - `.github/workflows/labeler.yml` and `.github/labeler.yml` — PR labeling workflow and path rules.
 - `.github/dependabot.yml` — dependency update automation.
@@ -64,8 +64,8 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 
 - Inspect the working tree, current branch, applicable instructions, and relevant open PRs before editing. Preserve existing user changes and use a separate checkout when necessary.
 - Start routine changes from the current target branch, normally `main`, and use a topic branch and pull request. Check for an existing relevant PR before creating another one.
-- A push or merge to `main` triggers the CI deployment job after the build matrix succeeds. There is no documentation path exclusion: Markdown-only changes also trigger this workflow.
-- Treat a direct push or merge to `main` as a deployment action under the authorization rules above. A routine code or documentation update should remain in a PR unless the user has authorized that deployment-affecting action.
+- A push or merge to `main` triggers CI, including for Markdown-only changes. The deployment job is currently commented out in `.github/workflows/node.js.yml`; check the live workflow before any push or merge because it may be re-enabled later.
+- Use a topic branch and PR for routine code or documentation updates. Do not run `npm run deploy` or re-enable the CI deployment job without an explicit deployment request.
 - Stage only intended files. Do not force-push, rewrite unrelated history, or overwrite concurrent changes to deliver an update.
 - Verify the published branch or PR diff and report its link. Distinguish local validation results from GitHub checks that are still pending or failed.
 
@@ -96,7 +96,7 @@ The scripts in `package.json` define the available commands:
 
 `package.json` contains an `allowScripts` policy for selected dependency install scripts. Treat that allowlist as a supply-chain security control.
 
-Compare its version-specific entries with all relevant resolutions in `package-lock.json`, including nested workerd packages. Verify enforcement by the active package-manager version before relying on the field to block scripts; its presence alone is not evidence that an install enforced it.
+The current allowlist names `esbuild@0.28.1`. Compare it with packages marked `hasInstallScript` in `package-lock.json`, including nested workerd packages, when working on dependencies. Verify enforcement by the active package-manager version before relying on the field to block scripts; its presence alone is not evidence that an install enforced it.
 
 - Do not broadly enable package lifecycle scripts.
 - Do not add a package to `allowScripts` merely to make installation succeed.
@@ -199,7 +199,7 @@ When editing Cloudflare configuration:
 - Local secrets belong in ignored `.dev.vars` or `.env` files. Keep committed example files value-free.
 - For deployed secrets, use Cloudflare secret mechanisms when explicitly requested.
 - Do not run `npm run deploy` or `wrangler deploy` unless deployment is explicitly part of the task.
-- The same deployment boundary applies to pushes and merges to `main`, because CI invokes the deploy script automatically.
+- Pushes and merges to `main` run CI but do not currently deploy because the deployment job is commented out. Recheck the live workflow before treating that as a lasting guarantee.
 - Do not change Worker routes, custom domains, account identifiers, production bindings, or remote resources without explicit approval.
 
 ## Security requirements
@@ -280,7 +280,7 @@ npm test
 npm run build
 ```
 
-The workflow runs for pushes to `main`, pull requests targeting `main`, and manual dispatch. Its deployment job runs only for a push to `main`, after the build matrix succeeds, and uses Node 24 with the configured Cloudflare repository secrets. PR validation and manual dispatch do not satisfy that deployment condition.
+The workflow runs for pushes to `main`, pull requests targeting `main`, and manual dispatch. The deployment job is currently commented out, so none of these events deploy through this workflow. If that job is re-enabled, its commented condition limits it to pushes to `main` after the build matrix succeeds.
 
 CodeQL scans `javascript-typescript` and `actions` on pushes, pull requests, and its weekly schedule. Dependabot checks npm and GitHub Actions dependencies daily.
 
@@ -307,5 +307,5 @@ Before reporting completion:
 6. If Cloudflare configuration or runtime types changed, confirm `npm run cf-typegen` ran before the final lint/test/build pass.
 7. Confirm generated files are intentional.
 8. Confirm dependency install-script permissions were not broadened unintentionally.
-9. Confirm no deployment or remote Cloudflare mutation occurred unless explicitly requested, including deployment triggered by a `main` push or merge.
+9. Confirm no deployment or remote Cloudflare mutation occurred unless explicitly requested; check whether the deployment job remains disabled before publishing to `main`.
 10. Run `git diff --check`, verify the branch/PR diff, and summarize what changed with the validation commands actually run, including failures or skips.
