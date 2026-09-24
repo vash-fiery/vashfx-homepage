@@ -6,7 +6,7 @@ import heroImg from './assets/hero.png'
 import './App.css'
 
 type ApiResponse = {
-  name?: Cloudflare
+  name?: 'Cloudflare'
 }
 
 function App() {
