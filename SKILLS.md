@@ -63,9 +63,9 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-At the 2026-09-14 review, the generated header in `worker-configuration.d.ts` recorded compatibility date `2026-08-29`, while `wrangler.jsonc` used `2026-09-09`. The direct `workerd` range and lockfile resolutions were also newer than the version-specific workerd entries in `allowScripts`.
+The generated header in `worker-configuration.d.ts` now records compatibility date `2026-09-09`, matching `wrangler.jsonc`, but records workerd `1.20260911.1`. The current lockfile resolves direct workerd to `1.20260921.1` and nested workerd copies to `1.20260918.1`. `allowScripts` currently lists only `esbuild@0.28.1`, while the lockfile also marks workerd packages and `fsevents` with `hasInstallScript`.
 
-Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update or remove this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
+Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
 
 ## GitHub delivery
 
@@ -77,7 +77,7 @@ Use when committing or publishing repository changes.
 4. Complete the validation required by the change and review the final diff.
 5. Push the topic branch and open or update a PR targeting `main`. Verify the remote diff and report the PR link and known check status.
 
-The deployment job is conditioned on push events to `main`, including documentation-only merges, and can deploy to Cloudflare after CI succeeds. Under `AGENTS.md`, a routine update request should be delivered through a PR; do not push or merge to `main` unless the deployment-affecting action is authorized. Do not force-push or overwrite concurrent work.
+A push or merge to `main` starts CI, including for documentation-only changes. The deployment job is currently commented out; recheck the live workflow before a push or merge, and do not re-enable deployment without an explicit request. Deliver routine updates through a PR. Do not force-push or overwrite concurrent work.
 
 ## Frontend React
 
@@ -265,7 +265,7 @@ Use whenever dependency lifecycle scripts, package provenance, lockfile changes,
 
 `package.json` contains an `allowScripts` policy. Treat it as a security control.
 
-Compare the version-specific entries with lockfile packages marked `hasInstallScript`, including nested workerd resolutions. Verify how the active package-manager version enforces the policy; do not claim scripts were blocked merely because this field exists. If entries and resolutions differ, report the mismatch and review the affected scripts before changing the policy.
+The current allowlist lists `esbuild@0.28.1`; the lockfile also marks direct and nested workerd packages and `fsevents` with `hasInstallScript`. Compare these entries when dependencies change. Verify how the active package-manager version enforces the policy; do not claim scripts were blocked merely because this field exists. Review the affected scripts before changing the policy.
 
 ### Rules
 
@@ -327,7 +327,7 @@ npm test
 npm run build
 ```
 
-After successful matrix validation, the `deploy` job runs on Node 24 only when the event is a push to `main`. It builds and invokes `npm run deploy` with Cloudflare repository secrets. There is no documentation-only path exclusion. PR and manual-dispatch runs do not deploy under the current condition.
+The `deploy` job is currently commented out, including its condition, Node 24 setup, build, and `npm run deploy` step. There is no documentation-only path exclusion for CI. Recheck the workflow before publishing because a future change could restore automatic deployment.
 
 CodeQL scans `javascript-typescript` and `actions` on pushes, PRs, and its weekly schedule. Dependabot checks npm and GitHub Actions daily. PR labels come from `.github/labeler.yml` through the existing `pull_request_target` labeler workflow.
 
@@ -379,7 +379,7 @@ Use for Markdown, comments, README material, agent instructions, and other non-e
 - Run `git diff --check` and confirm the diff contains only intended documentation files. No dependency installation is needed for this check.
 - Review the final diff for accidental executable changes.
 
-Documentation-only changes may skip `npm run lint`, `npm test`, `npm run build`, and `npm run cf-typegen` when executable inputs are unchanged. State those skips and the reason in the final response. Follow **GitHub delivery** because a documentation push to `main` still triggers deployment.
+Documentation-only changes may skip `npm run lint`, `npm test`, `npm run build`, and `npm run cf-typegen` when executable inputs are unchanged. State those skips and the reason in the final response. Follow **GitHub delivery** because a documentation push to `main` still triggers CI; check the current deploy job state before publication.
 
 ## Validation
 
@@ -430,7 +430,7 @@ Deployment is a remote mutation. Before running it:
 
 Do not treat a normal code or documentation task as implicit deployment approval.
 
-The other deployment path is a push or merge to `main`, which starts CI and can invoke the same deploy script after validation. Review this side effect before an authorized release. A topic-branch PR provides validation without meeting the workflow's deployment condition.
+The `main` push workflow currently runs validation only: its deployment job is commented out. A future change could restore that job, so check the live workflow before publishing. A topic-branch PR runs validation without publishing to `main`.
 
 ## Completion workflow
 
@@ -442,7 +442,7 @@ Before reporting any completed change:
 4. Run the validation required by the type of change.
 5. Confirm generated files are intentional.
 6. Confirm `allowScripts` was not broadened unintentionally.
-7. Confirm no remote Cloudflare mutation occurred unless explicitly requested, including automatic deployment from a push or merge to `main`.
+7. Confirm no remote Cloudflare mutation occurred unless explicitly requested; check the current workflow deployment state before publishing to `main`.
 8. Summarize the files changed and the behavior or documentation added.
 9. List validation commands actually run, including failures or intentional skips.
 10. Verify published changes and link the branch or PR. Report remote checks separately from local checks, and leave the PR unmerged when deployment was not authorized.
