@@ -63,7 +63,7 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-The generated header in `worker-configuration.d.ts` now records compatibility date `2026-09-09`, matching `wrangler.jsonc`, but records workerd `1.20260911.1`. The current lockfile resolves direct workerd to `1.20260921.1` and nested workerd copies to `1.20260918.1`. `allowScripts` currently lists only `esbuild@0.28.1`, while the lockfile also marks workerd packages and `fsevents` with `hasInstallScript`.
+The generated header in `worker-configuration.d.ts` records compatibility date `2026-09-09`, matching `wrangler.jsonc`, but records workerd `1.20260911.1`. At this documentation update, `package-lock.json` resolves `node_modules/workerd` to `1.20261001.1`, while `package.json` declares `^1.20260921.1`; no nested workerd package entries are present. `allowScripts` currently lists only `esbuild@0.28.1`, while the lockfile also marks workerd packages and `fsevents` with `hasInstallScript`.
 
 Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
 
@@ -368,7 +368,9 @@ Use for Markdown, comments, README material, agent instructions, and other non-e
 
 ### Workflow
 
-- Keep documentation consistent with current repository behavior.
+- Keep documentation consistent with current repository behavior. Use `README.md` for contributor setup and behavior, `AGENTS.md` for policy, and this file for workflows.
+- Trace environment-variable consumers before describing settings as active. The current frontend calls `/api/` directly; the root `.env` API URLs, PWA flag, and long-reply flag do not control that interaction.
+- Verify development-tool imports before documenting integrations. Installed Codex and Eruda packages do not imply an OpenAI API feature or initialized browser console.
 - Prefer commands that already exist in `package.json`.
 - Do not document deployment or configuration behavior that the repository does not actually use.
 - Update adjacent documentation when a behavior change would otherwise leave instructions stale.
