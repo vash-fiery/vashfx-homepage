@@ -35,6 +35,20 @@ Before submitting code changes, run `npm run lint`, `npm test`, and `npm run bui
 - `worker/index.test.ts` tests the handler directly, including route boundaries; it does not test Cloudflare's static asset routing.
 - `vite.config.ts` configures the React and Cloudflare Vite plugins. `wrangler.jsonc` defines the Worker entry point, assets directory, and Worker-first `/api/*` routing.
 
+## Configuration and development tools
+
+[wrangler.jsonc](wrangler.jsonc) configures the Worker, `ASSETS` binding, SPA fallback, observability, and runtime compatibility. Run `npm run cf-typegen` after changing bindings or runtime typing assumptions, then review the generated [worker-configuration.d.ts](worker-configuration.d.ts).
+
+The tracked root `.env` contains public `VITE_*` settings. The current API button uses the literal same-origin URL `/api/`, so changing either API URL variable does not change that request. The PWA and long-reply flags are not implemented features in the current app. Keep secrets out of `VITE_*` variables and tracked files.
+
+`@openai/codex` and `eruda` are development dependencies; neither is imported by the current app or Worker. The application has no OpenAI API integration or initialized Eruda console.
+
+## Verify changes
+
+For the API button, check that it starts at `unknown`, disables itself and shows `loading…` during a request, displays `Cloudflare` after success, and shows `unavailable` after a failed request or invalid response. Handler unit tests do not cover this browser interaction.
+
+For documentation-only updates, verify commands, links, paths, and behavior against the source and run `git diff --check`. For executable changes, run the lint, test, and build commands above; supplement handler tests with local dev/preview checks when changing static-asset or SPA routing.
+
 ## Deployment
 
 `npm run deploy` runs a build and then `wrangler deploy`. Configure Wrangler authentication and the target Cloudflare account before using it. Deployment publishes remotely; `npm run preview` is the local preview command.

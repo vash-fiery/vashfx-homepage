@@ -4,7 +4,7 @@
 
 These instructions apply to the entire repository unless a more deeply nested `AGENTS.md` or `AGENTS.override.md` provides more specific guidance.
 
-This repository is the source for the VashFX homepage. Treat it as a production React application deployed on Cloudflare Workers.
+This repository is the source for the VashFX homepage. The current UI is a React starter page with a counter and Worker API button. Treat changes with production care; repository configuration alone does not establish the live deployment state.
 
 Read [SKILLS.md](SKILLS.md) for task-specific workflows. This file defines repository policy; `SKILLS.md` explains how to apply it.
 
@@ -129,6 +129,22 @@ npm run cf-typegen
 whenever `wrangler.jsonc`, Worker bindings, compatibility flags, compatibility date, or Cloudflare runtime typing assumptions change.
 
 Generate types before the final lint/test/build pass so validation covers the resulting file. Review `worker-configuration.d.ts`, including its generation header and `Env`/`ASSETS` declarations. Commit it only when the generated types legitimately changed. Do not hand-edit generated sections to conceal a configuration/type mismatch.
+
+## Documentation maintenance
+
+Keep the three root documents aligned while preserving their distinct roles:
+
+- `README.md` explains setup, application behavior, configuration, and deployment to contributors.
+- `AGENTS.md` defines repository-wide instructions and validation requirements.
+- `SKILLS.md` describes task-specific workflows and their sources of truth.
+
+Verify claims against source files at the target commit. Prefer links to configuration and manifests over duplicate version snapshots. When retaining a drift note, name the files compared and refresh or remove it after the underlying state changes. Do not describe a dependency, environment variable, or commented workflow as an active application feature without finding its use.
+
+### Environment configuration
+
+The tracked root `.env` contains public `VITE_*` values. The current API button calls the literal same-origin path `/api/`; it does not use either configured API URL. The PWA and long-reply variables do not establish implemented features.
+
+Treat `VITE_*` values as public client configuration. Keep credentials in ignored local secret files and authorized Cloudflare secrets. Before changing configuration, trace its consumers in `src/`, `worker/`, and tooling; update generated types when the change affects Worker environment typing.
 
 ## Frontend guidance
 
