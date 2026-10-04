@@ -17,7 +17,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.62.0",
+    "@cloudflare/vite-plugin": "^1.62.5",
     "@openai/codex": "^0.157.0",
     "@types/node": "^26.6.3",
     "@types/react": "^19.2.18",
@@ -28,7 +28,7 @@
     "typescript": "~6.0.2",
     "vite": "^8.3.1",
     "workerd": "^1.20260921.1",
-    "wrangler": "^4.136.2"
+    "wrangler": "^4.147.0"
   },
   "allowScripts": {
     "esbuild@0.28.1": true
