@@ -11,7 +11,7 @@ type ApiResponse = {
 
 function App() {
   const [count, setCount] = useState(0)
-  const [name, setName] = useState('unknown')
+  const [name, setName] = useState('Cloudflare')
   const [isLoadingName, setIsLoadingName] = useState(false)
 
   const loadName = async () => {
