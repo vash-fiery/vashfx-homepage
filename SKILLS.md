@@ -63,7 +63,7 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-The generated header in `worker-configuration.d.ts` records compatibility date `2026-09-09`, matching `wrangler.jsonc`, and workerd `1.20261001.1`, matching the runtime resolved for Wrangler `4.147.0`. At the 2026-10-09 regeneration, the direct workerd dependency resolves to `1.20261005.1`, while nested runtime dependencies resolve to `1.20261001.1`. `allowScripts` currently lists only `esbuild@0.28.1`, while the lockfile also marks workerd packages and `fsevents` with `hasInstallScript`. Dependencies for this regeneration were installed with lifecycle scripts disabled; the allowlist was not changed.
+The generated header in `worker-configuration.d.ts` records compatibility date `2026-09-09`, matching `wrangler.jsonc`, and workerd `1.20261006.1`, matching the runtime resolved for Wrangler `4.149.0`. At the 2026-10-10 regeneration, `package-lock.json` resolves workerd to `1.20261006.1` with no nested workerd packages. `allowScripts` currently lists only `esbuild@0.28.1`, while the lockfile also marks workerd and `fsevents` with `hasInstallScript`. Dependencies for this regeneration were installed with lifecycle scripts disabled; the allowlist was not changed.
 
 Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
 
