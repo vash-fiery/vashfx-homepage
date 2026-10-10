@@ -124,6 +124,8 @@ This command builds and publishes remotely. Use `npm run preview` for a local bu
 
 The [CI workflow](.github/workflows/node.js.yml) runs `npm ci`, lint, tests, and build on Node.js 24 and 26 for pushes to `main`, pull requests targeting `main`, and manual dispatch. Markdown-only changes also trigger these checks. The Cloudflare deployment job is currently commented out, so this workflow does not deploy the site; recheck it before relying on that behavior.
 
+Cloudflare also reports a separate `Workers Builds: vashfx-homepage` check that supplies branch preview URLs. This integration is independent of the GitHub Actions deployment job. Review its Cloudflare build/deploy settings before assuming a push or merge will only run validation.
+
 [CodeQL](.github/workflows/codeql.yml) scans JavaScript/TypeScript and GitHub Actions on pushes and pull requests to `main`, plus a weekly schedule.
 
 ## Contributing
