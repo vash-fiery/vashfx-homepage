@@ -2,7 +2,17 @@
 
 A React and TypeScript homepage built with Vite and backed by a Cloudflare Worker. The current application is a starter page with a counter and an API button.
 
-The stack uses React, TypeScript, the React and Cloudflare Vite plugins, Wrangler, Oxlint, and Node's built-in test runner. See [package.json](package.json) for dependency ranges and scripts, and [package-lock.json](package-lock.json) for resolved versions.
+| Layer | Tooling |
+| --- | --- |
+| Frontend | `React` and `TypeScript`. |
+| Build and local development | `Vite` with the React and Cloudflare plugins. |
+| API and deployment | `Cloudflare Workers` and `Wrangler`. |
+| Validation | `Oxlint`, `node:test`, and TypeScript build checks. |
+| Runtime and packages | Node.js `24` or `26`, `npm`, and a committed lockfile. |
+
+Read [package.json](package.json) for scripts and dependency ranges, and [package-lock.json](package-lock.json) for resolved versions.
+
+[Setup](#get-started) · [Commands](#commands) · [API](#application-and-api-behavior) · [Configuration](#configuration-and-generated-types) · [Validation](#verify-changes) · [Deployment and CI](#deployment-and-ci)
 
 ## Get started
 
@@ -48,25 +58,52 @@ Linting and test execution do not replace TypeScript checking; `npm run build` c
 | [vite.config.ts](vite.config.ts), [wrangler.jsonc](wrangler.jsonc) | Build plugins and persistent Worker configuration. |
 | [worker-configuration.d.ts](worker-configuration.d.ts) | Committed, generated runtime and binding types. |
 | [.github/workflows/](.github/workflows/) | CI, CodeQL scanning, and PR labeling. |
+| [.github/dependabot.yml](.github/dependabot.yml) | Dependency update configuration. |
+| [AGENTS.md](AGENTS.md), [SKILLS.md](SKILLS.md) | Repository policy, formatting defaults, and task workflows. |
 
 ## Application and API behavior
 
-The counter starts at `0`. The API button initially displays `Name from API is: Cloudflare`; this initial label is local state, not evidence of a completed request.
+The counter starts at `0` and increments when clicked. The API button requests the same-origin path `/api/` and requires both a successful HTTP status and a string `name` in the JSON response.
 
-Clicking the API button requests the same-origin path `/api/`. While waiting, the button is disabled and displays `loading…`. It checks the HTTP status and requires a string `name` in the JSON response. Success displays that name; a failed request or invalid response displays `unavailable`.
+| API button state | Display and behavior |
+| --- | --- |
+| Initial | Shows `Cloudflare` from local state; no request has been made. |
+| Loading | Shows `loading…` and disables the button while the request is pending. |
+| Success | Displays the returned `name`. |
+| Request or response failure | Displays `unavailable`. |
 
-The [Worker handler](worker/index.ts) uses the URL pathname:
+The [Worker handler](worker/index.ts) matches the URL pathname and currently accepts every HTTP method:
 
-- Paths starting with `/api/`, including `/api/status?source=test`, return HTTP `200` with JSON `{"name":"Cloudflare"}`.
-- The handler does not restrict the HTTP method.
-- `/api` without the trailing slash and lookalikes such as `/apiary` are outside the API namespace.
-- Non-API requests that reach the handler return an empty `404` response.
+| Request path | Direct-handler response |
+| --- | --- |
+| `/api/` | HTTP `200` with the JSON response below. |
+| `/api/status?source=test` and other `/api/` paths | HTTP `200` with the same JSON; query strings do not change routing. |
+| `/api`, `/apiary` | Empty HTTP `404`; these are outside the `/api/` namespace. |
+| Other paths, including `/` | Empty HTTP `404` when passed directly to the handler. |
+
+```json
+{
+  "name": "Cloudflare"
+}
+```
 
 [wrangler.jsonc](wrangler.jsonc) runs the Worker first for `/api/*` and configures static assets with the `ASSETS` binding and single-page-app fallback. Asset routing is separate from the handler: a direct-handler `404` for `/` does not mean the deployed homepage returns `404`.
 
 ## Configuration and generated types
 
-[wrangler.jsonc](wrangler.jsonc) is the source of truth for the Worker name (`vashfx-homepage`), entry point, assets, compatibility date and flags, observability, and source-map upload.
+[wrangler.jsonc](wrangler.jsonc) is the source of truth for persistent Worker configuration:
+
+| Setting | Configured value |
+| --- | --- |
+| Worker name | `vashfx-homepage`. |
+| Entry point | `worker/index.ts`. |
+| Compatibility date | `2026-09-09`. |
+| Compatibility flag | `nodejs_compat`. |
+| Assets | `./dist`, exposed through `ASSETS`. |
+| Asset fallback | `single-page-application`. |
+| Worker-first routes | `/api/*`. |
+| Observability | `enabled: true`. |
+| Source maps | `upload_source_maps: true`. |
 
 Regenerate types after changing bindings, compatibility settings, or runtime typing assumptions, including relevant Wrangler/workerd upgrades:
 
@@ -76,12 +113,18 @@ npm run cf-typegen
 
 Review [worker-configuration.d.ts](worker-configuration.d.ts), especially its generation header and `Env`/`ASSETS` declarations. Generate types before the final lint, test, and build checks, and commit the file when its generated content changes. Do not hand-edit generated runtime declarations.
 
+Compare the header with the resolved top-level Wrangler/workerd toolchain; the Vite plugin can use its own nested runtime versions. See the dated [maintenance comparison](SKILLS.md#maintenance-drift-to-verify) before runtime or dependency maintenance.
+
 ### Environment settings
 
 The tracked root [.env](.env) contains public `VITE_*` configuration:
 
-- `VITE_GLOB_API_URL` and `VITE_APP_API_BASE_URL` are defined, but the API button calls the literal path `/api/`; changing these values does not change that request.
-- `VITE_GLOB_OPEN_LONG_REPLY` and `VITE_GLOB_APP_PWA` are defined, but the current app does not implement those features.
+| Variable | Current application use |
+| --- | --- |
+| `VITE_GLOB_API_URL` | Defined; the API button uses the literal path `/api/`. |
+| `VITE_APP_API_BASE_URL` | Defined; changing it does not change the API button's request. |
+| `VITE_GLOB_OPEN_LONG_REPLY` | Defined; long-reply behavior is not implemented. |
+| `VITE_GLOB_APP_PWA` | Defined; PWA behavior is not implemented. |
 
 These variables also appear in the generated environment types. A type declaration does not establish that the app consumes a setting.
 
@@ -110,7 +153,13 @@ For a local browser check with `npm run dev` or `npm run preview`:
 3. Confirm the loading/disabled state, successful response, and `unavailable` state after a failed request or invalid response.
 4. When changing assets or routing, check the homepage and SPA fallback through the local server as well as the API routes.
 
-For documentation-only changes, verify commands, links, paths, and behavior against their source files and run `git diff --check`. Lint, tests, build, and type generation may be skipped when executable inputs are unchanged.
+For documentation-only changes, verify commands, links, paths, and behavior against their source files, then check whitespace and patch errors:
+
+```sh
+git diff --check
+```
+
+Lint, tests, build, and type generation may be skipped when executable inputs are unchanged. Report which checks ran and which were skipped.
 
 ## Deployment and CI
 
@@ -122,12 +171,22 @@ npm run deploy
 
 This command builds and publishes remotely. Use `npm run preview` for a local build preview.
 
-The [CI workflow](.github/workflows/node.js.yml) runs `npm ci`, lint, tests, and build on Node.js 24 and 26 for pushes to `main`, pull requests targeting `main`, and manual dispatch. Markdown-only changes also trigger these checks. The Cloudflare deployment job is currently commented out, so this workflow does not deploy the site; recheck it before relying on that behavior.
+| Automation | Current behavior |
+| --- | --- |
+| [CI](.github/workflows/node.js.yml) | Pushes and PRs to `main`, plus manual dispatch; runs `npm ci`, lint, tests, and build on Node.js `24` and `26`, then uploads build artifacts. |
+| [CodeQL](.github/workflows/codeql.yml) | Scans `javascript-typescript` and `actions` on pushes and PRs to `main`, plus a weekly schedule. |
+| [Labeler](.github/workflows/labeler.yml) | Runs on `pull_request` using the path rules in [.github/labeler.yml](.github/labeler.yml). |
+| [Dependabot](.github/dependabot.yml) | Daily update checks configured for `npm`, `github-actions`, and `docker`. |
+| Cloudflare Workers Builds | Reports `Workers Builds: vashfx-homepage` independently of GitHub Actions. |
 
-Cloudflare also reports a separate `Workers Builds: vashfx-homepage` check that supplies branch preview URLs. This integration is independent of the GitHub Actions deployment job. Review its Cloudflare build/deploy settings before assuming a push or merge will only run validation.
+Markdown-only changes also trigger CI. The Cloudflare deployment job in the Actions workflow is currently commented out; recheck the live workflow before relying on that behavior.
 
-[CodeQL](.github/workflows/codeql.yml) scans JavaScript/TypeScript and GitHub Actions on pushes and pull requests to `main`, plus a weekly schedule.
+For Workers Builds, review the reported build/version details, any supplied preview URL, and the integration's branch/build/deploy settings. A successful check alone does not establish which version is live in production, and the commented Actions job does not control this separate integration.
+
+Docker dependency updates are configured, but no `Dockerfile` is currently tracked.
 
 ## Contributing
 
 Read [AGENTS.md](AGENTS.md) for repository policy and [SKILLS.md](SKILLS.md) for task-specific workflows. Use a topic branch and pull request, keep changes focused, and include the validation performed. Keep build output, local Wrangler state, and secrets out of commits. Deployment is a separate action that must be explicitly requested.
+
+Follow the [formatting policy](AGENTS.md#preferred-formatting) and [presentation workflow](SKILLS.md#formatting-and-presentation): compact native Markdown tables, monospace commands and values, and language-tagged code blocks. Rich-output card styling is defined in the policy; GitHub supplies the README's rendered theme and spacing.
