@@ -28,25 +28,27 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 
 ## Repository map
 
-- `src/` — React application source.
-- `src/main.tsx` — browser entry point.
-- `src/App.tsx` — primary application component.
-- `src/App.css` and `src/index.css` — application styling.
-- `src/assets/` — bundled application assets.
-- `public/` — static public assets copied by Vite.
-- `worker/index.ts` — Cloudflare Worker request handler.
-- `worker/index.test.ts` — Worker unit tests using `node:test`.
-- `wrangler.jsonc` — source of truth for persistent Cloudflare Worker configuration.
-- `worker-configuration.d.ts` — committed generated Worker/runtime and binding types.
-- `vite.config.ts` — Vite and Cloudflare plugin configuration.
-- `package.json` and `package-lock.json` — npm scripts, dependency ranges, and resolved dependency state.
-- `tsconfig.json` — project references for the app, Node tooling, and Worker TypeScript configurations.
-- `.oxlintrc.json` — lint configuration.
-- `.github/workflows/node.js.yml` — Node 24/26 validation; its Cloudflare deployment job is currently commented out.
-- `.github/workflows/codeql.yml` — CodeQL security scanning.
-- `.github/workflows/labeler.yml` and `.github/labeler.yml` — PR labeling workflow and path rules.
-- `.github/dependabot.yml` — dependency update automation.
-- `SKILLS.md` — task routing and repeatable workflows.
+| Path | Purpose |
+| --- | --- |
+| `src/` | React application source. |
+| `src/main.tsx` | Browser entry point. |
+| `src/App.tsx` | Primary application component. |
+| `src/App.css`, `src/index.css` | Application styling. |
+| `src/assets/` | Bundled application assets. |
+| `public/` | Static public assets copied by Vite. |
+| `worker/index.ts` | Cloudflare Worker request handler. |
+| `worker/index.test.ts` | Worker unit tests using `node:test`. |
+| `wrangler.jsonc` | Source of truth for persistent Cloudflare Worker configuration. |
+| `worker-configuration.d.ts` | Committed generated Worker/runtime and binding types. |
+| `vite.config.ts` | Vite and Cloudflare plugin configuration. |
+| `package.json`, `package-lock.json` | npm scripts, dependency ranges, and resolved dependency state. |
+| `tsconfig.json` | Project references for app, Node tooling, and Worker TypeScript configurations. |
+| `.oxlintrc.json` | Lint configuration. |
+| `.github/workflows/node.js.yml` | Node 24/26 validation; Cloudflare deployment job currently commented out. |
+| `.github/workflows/codeql.yml` | CodeQL security scanning. |
+| `.github/workflows/labeler.yml`, `.github/labeler.yml` | PR labeling workflow and path rules. |
+| `.github/dependabot.yml` | Dependency update automation. |
+| `SKILLS.md` | Task routing and repeatable workflows. |
 
 ## Working principles
 
@@ -85,13 +87,15 @@ Do not install Wrangler, Vite, TypeScript, Oxlint, Codex, or other repository to
 
 The scripts in `package.json` define the available commands:
 
-- `npm run dev` starts Vite with the React and Cloudflare plugins.
-- `npm run lint` runs Oxlint using `.oxlintrc.json`; this is not a TypeScript build check.
-- `npm test` runs `node --test --experimental-strip-types worker/index.test.ts`.
-- `npm run build` runs `tsc -b && vite build`, checking the referenced TypeScript projects before bundling.
-- `npm run preview` builds first, then runs `vite preview` locally.
-- `npm run cf-typegen` runs `wrangler types`.
-- `npm run deploy` builds first, then runs `wrangler deploy`; use only for an authorized deployment.
+| Command | Effect |
+| --- | --- |
+| `npm run dev` | Start Vite with the React and Cloudflare plugins. |
+| `npm run lint` | Run Oxlint using `.oxlintrc.json`; this is not a TypeScript build check. |
+| `npm test` | Run `node --test --experimental-strip-types worker/index.test.ts`. |
+| `npm run build` | Run `tsc -b && vite build`; check referenced TypeScript projects before bundling. |
+| `npm run preview` | Build first, then run `vite preview` locally. |
+| `npm run cf-typegen` | Run `wrangler types`. |
+| `npm run deploy` | Build first, then run `wrangler deploy`; requires an explicit deployment request. |
 
 ### Dependency install scripts
 
@@ -146,6 +150,26 @@ Verify claims against source files at the target commit. Prefer links to configu
 The tracked root `.env` contains public `VITE_*` values. The current API button calls the literal same-origin path `/api/`; it does not use either configured API URL. The PWA and long-reply variables do not establish implemented features.
 
 Treat `VITE_*` values as public client configuration. Keep credentials in ignored local secret files and authorized Cloudflare secrets. Before changing configuration, trace its consumers in `src/`, `worker/`, and tooling; update generated types when the change affects Worker environment typing.
+
+## Preferred formatting
+
+Use Vash Fiery's established style for documentation, reports, code examples, and requested rich previews. Apply application styling within the requested UI task's scope.
+
+| Element | Preference |
+| --- | --- |
+| Container | Compact Tailwind/shadcn-style cards with rounded corners and visible borders. |
+| Card padding | `0px`. |
+| Headers | Muted header/panel backgrounds and compact spacing. |
+| Tables | Colorized cells or accents where supported; keep meaning available through text labels. |
+| Typography | Monospace values and code; a small, readable code font. |
+| Code | Language-aware syntax highlighting with selectable, copyable source. |
+| Overflow | Horizontal scrolling for wide tables and long code lines. |
+
+For supported rich output, use the theme tokens `--viz-card`, `--viz-panel`, `--viz-border`, `--viz-text`, `--viz-muted`, and `--viz-series-*` consistently. Keep tables and code as text rather than SVG/image-only replacements.
+
+In repository Markdown, use compact native tables, inline code for commands/paths/values, and fenced code blocks with a language tag such as `sh`, `js`, `ts`, `json`, or `css`. GitHub controls rendered colors, font sizes, borders, and padding; reserve custom card styling for surfaces that support it. Preserve blank lines around tables, lists, headings, and code fences.
+
+See [Formatting and presentation](SKILLS.md#formatting-and-presentation) for the workflow and completion checks.
 
 ## Frontend guidance
 
