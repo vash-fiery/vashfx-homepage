@@ -28,9 +28,9 @@ updates:
     allow:
       - dependency-type: "all"
     commit-message:
-      prefix: "[npm] "
+      prefix: "[docker] "
     labels:
-      - "npm"
+      - "docker"
     #  - "triage"
     assignees:
       - "vash-fiery"
