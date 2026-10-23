@@ -16,15 +16,18 @@ Choose the smallest useful set of skills for the task.
 
 Typical routing:
 
-- React component or UI work → **Frontend React**, **Styling and accessibility**, then **Validation**.
-- Worker/API work → **Cloudflare Worker/API**, **Worker testing**, then **Validation**.
-- Wrangler or binding changes → **Cloudflare configuration**, **Cloudflare type generation**, then **Validation**.
-- Dependency changes → **Dependency maintenance**, **Supply-chain review**, then **Validation**.
-- GitHub Actions changes → **CI/workflow maintenance**, **Security review**, then **Validation**.
-- Bug fixing → **Repository reconnaissance**, **Debugging**, the relevant implementation skill, **Regression testing**, then **Validation**.
-- Documentation-only work → **Documentation maintenance** and a final diff review.
-- Publishing repository changes → **GitHub delivery**, with validation appropriate to the changed files.
-- Explicit deployment work → **Deployment**, after validation and target review.
+| Task | Workflow |
+| --- | --- |
+| React component or UI | [Frontend React](#frontend-react) → [Styling and accessibility](#styling-and-accessibility) → [Validation](#validation). |
+| Worker/API | [Cloudflare Worker/API](#cloudflare-workerapi) → [Worker testing](#worker-testing) → [Validation](#validation). |
+| Wrangler or bindings | [Cloudflare configuration](#cloudflare-configuration) → [Cloudflare type generation](#cloudflare-type-generation) → [Validation](#validation). |
+| Dependencies | [Dependency maintenance](#dependency-maintenance) → [Supply-chain review](#supply-chain-review) → [Validation](#validation). |
+| GitHub Actions | [CI/workflow maintenance](#ciworkflow-maintenance) → [Security review](#security-review) → [Validation](#validation). |
+| Bug fixing | [Repository reconnaissance](#repository-reconnaissance) → [Debugging](#debugging) → relevant implementation workflow → [Regression testing](#regression-testing) → [Validation](#validation). |
+| Documentation only | [Formatting and presentation](#formatting-and-presentation) → [Documentation maintenance](#documentation-maintenance) → final diff review. |
+| Reports, tables, or code examples | [Formatting and presentation](#formatting-and-presentation). |
+| Publishing repository changes | [GitHub delivery](#github-delivery), with validation appropriate to the changed files. |
+| Explicit deployment | [Deployment](#deployment), after validation and target review. |
 
 ## Repository reconnaissance
 
@@ -82,6 +85,36 @@ Use when committing or publishing repository changes.
 5. Push the topic branch and open or update a PR targeting `main`. Verify the remote diff and report the PR link and known check status.
 
 A push or merge to `main` starts CI, including for documentation-only changes. The Actions deployment job is currently commented out, and the separate Cloudflare integration reports `Workers Builds: vashfx-homepage`. Recheck the live workflow before publishing, report external build results separately, and inspect Cloudflare build/deploy settings when deployment is in scope. Deliver routine updates through a PR without running deployment commands or re-enabling the deployment job. Do not force-push or overwrite concurrent work.
+
+## Formatting and presentation
+
+Use for documentation layout, user-facing reports, tables, command references, code examples, and requested rich previews. The formatting defaults are defined in [AGENTS.md](AGENTS.md#preferred-formatting).
+
+### Choose the output surface
+
+| Surface | Presentation |
+| --- | --- |
+| GitHub Markdown | Compact native tables, monospace inline values, and language-tagged fenced code blocks. GitHub supplies the visual theme and spacing. |
+| Supported rich output | Rounded, bordered Tailwind/shadcn-style cards with `0px` container padding, muted headers, colorized tables, small monospace code, syntax highlighting, and horizontal overflow. Use the `--viz-*` tokens named in the policy. |
+| Short status update | Concise prose with the result, relevant link, and validation state. Use tables or code blocks when they improve readability. |
+
+### Workflow
+
+1. Identify the actual output surface and apply the supported presentation above.
+2. Use tables for path/role, command/effect, and task/workflow mappings. Keep cell text concise and preserve exact commands and values.
+3. Tag every fenced code block with its language so the renderer can apply syntax highlighting. Keep executable examples copyable and separate from explanatory prose.
+4. In rich output, apply `0px` card container padding, rounded borders, muted header/panel backgrounds, consistent theme tokens, and compact spacing. Use color to clarify table values while retaining text labels.
+5. Use small, readable monospace code and horizontal scrolling for long lines or wide tables. Preserve zoom and keyboard access in interactive previews.
+6. Keep table/code content selectable; use text rendering rather than SVG/image-only formatting.
+7. For repository Markdown, keep native formatting and source readability; validate links, tables, fences, and the diff through **Documentation maintenance**.
+
+### Completion checks
+
+- Tables render as tables, and every fenced block has the correct language tag.
+- Commands, paths, and values remain accurate and copyable.
+- Rich output uses the requested card padding, borders, muted headers, colorization, typography, and theme tokens.
+- Wide content can scroll without clipping, and the result stays readable on narrow screens.
+- The result accurately reflects the output surface's formatting capabilities.
 
 ## Frontend React
 
@@ -375,6 +408,7 @@ Use for Markdown, comments, README material, agent instructions, and other non-e
 ### Workflow
 
 - Keep documentation consistent with current repository behavior. Use `README.md` for contributor setup and behavior, `AGENTS.md` for policy, and this file for workflows.
+- Follow **Formatting and presentation**: use compact native Markdown tables for mappings, monospace values, and language-tagged code fences. Keep the full card-style defaults in `AGENTS.md` as the policy source.
 - Trace environment-variable consumers before describing settings as active. The current frontend calls `/api/` directly; the root `.env` API URLs, PWA flag, and long-reply flag do not control that interaction.
 - Verify development-tool imports before documenting integrations. Installed Codex and Eruda packages do not imply an OpenAI API feature or initialized browser console.
 - Prefer commands that already exist in `package.json`.
