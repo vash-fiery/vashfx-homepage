@@ -9,6 +9,24 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "all"
+    commit-message:
+      prefix: "[npm] "
+    labels:
+      - "npm"
+    #  - "triage"
+    assignees:
+      - "vash-fiery"
+
+  - package-ecosystem: "yarn" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "all"
     commit-message:
       prefix: "[npm] "
     labels:
@@ -23,6 +41,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    allow:
+      - dependency-type: "all"
     commit-message:
       prefix: "[github] "
     #labels:
