@@ -63,7 +63,11 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-The generated header in `worker-configuration.d.ts` records compatibility date `2026-09-09`, matching `wrangler.jsonc`, and workerd `1.20261006.1`, matching the runtime resolved for Wrangler `4.149.0`. At the 2026-10-10 regeneration, `package-lock.json` resolves workerd to `1.20261006.1` with no nested workerd packages. `allowScripts` currently lists only `esbuild@0.28.1`, while the lockfile also marks workerd and `fsevents` with `hasInstallScript`. Dependencies for this regeneration were installed with lifecycle scripts disabled; the allowlist was not changed.
+Comparison checked on 2026-10-23 against `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json`:
+
+- The generated header records compatibility date `2026-09-09`, matching the configuration, but workerd `1.20261006.1`. The top-level lockfile resolutions are Wrangler `4.151.3` and workerd `1.20261019.1`, so the generated runtime snapshot predates the locked toolchain.
+- `@cloudflare/vite-plugin` `1.64.0` resolves its own Wrangler `4.151.0` and workerd `1.20261012.1`. Another workerd `1.20261012.1` is nested under top-level Miniflare. Do not assume the dev-server runtime and top-level Wrangler use the same version.
+- `allowScripts` lists `esbuild@0.28.1`, while the lockfile resolves esbuild `0.28.2`. The lockfile marks esbuild, direct and nested workerd packages, and `fsevents` with `hasInstallScript`. Review the stale version-specific entry and actual package-manager enforcement during dependency maintenance.
 
 Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
 
@@ -71,13 +75,13 @@ Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `pack
 
 Use when committing or publishing repository changes.
 
-1. Read the target branch, latest target commit, and existing relevant PRs using the connected GitHub tools or authenticated Git.
+1. Read the target branch, latest target commit, existing relevant PRs, and current check runs using the connected GitHub tools or authenticated Git. Check runs can reveal integrations that are not represented in workflow YAML.
 2. Preserve local user work and base the patch on the current target commit.
 3. Use a topic branch and stage only intended files.
 4. Complete the validation required by the change and review the final diff.
 5. Push the topic branch and open or update a PR targeting `main`. Verify the remote diff and report the PR link and known check status.
 
-A push or merge to `main` starts CI, including for documentation-only changes. The deployment job is currently commented out; recheck the live workflow before a push or merge, and do not re-enable deployment without an explicit request. Deliver routine updates through a PR. Do not force-push or overwrite concurrent work.
+A push or merge to `main` starts CI, including for documentation-only changes. The Actions deployment job is currently commented out, and the separate Cloudflare integration reports `Workers Builds: vashfx-homepage`. Recheck the live workflow before publishing, report external build results separately, and inspect Cloudflare build/deploy settings when deployment is in scope. Deliver routine updates through a PR without running deployment commands or re-enabling the deployment job. Do not force-push or overwrite concurrent work.
 
 ## Frontend React
 
@@ -224,7 +228,7 @@ Do not change deployed routes, custom domains, account identifiers, secrets, pro
 
 ## Cloudflare type generation
 
-Use whenever Worker bindings, compatibility flags, compatibility date, or runtime typing assumptions change.
+Use whenever Worker bindings, compatibility flags, compatibility date, or runtime typing assumptions change, including relevant Wrangler/workerd upgrades.
 
 ### Command
 
@@ -234,9 +238,9 @@ npm run cf-typegen
 
 ### Workflow
 
-1. Make the configuration change first.
+1. Make the intentional configuration or dependency change first.
 2. Run `npm run cf-typegen`.
-3. Review `worker-configuration.d.ts`, including its generation header and `Env`/`ASSETS` declarations, against the current configuration and resolved toolchain.
+3. Review `worker-configuration.d.ts`, including its generation header and `Env`/`ASSETS` declarations, against the current configuration and resolved top-level Wrangler/workerd toolchain. Compare the Vite plugin's nested runtime separately; `npm run cf-typegen` invokes the repository's top-level Wrangler CLI.
 4. Commit generated changes only when they reflect the intentional configuration change.
 5. Never hand-edit generated sections to hide a configuration/type mismatch.
 6. Run lint, tests, and build after generation so the final checks include the generated file.
@@ -252,7 +256,7 @@ Use for `package.json`, `package-lock.json`, dependency upgrades, removals, or a
 3. Prefer actively maintained packages with a narrow purpose.
 4. Change `package.json` and `package-lock.json` together.
 5. Review lifecycle/install scripts.
-6. Review transitive impact for privileged or security-sensitive packages.
+6. Review transitive impact for privileged or security-sensitive packages. After relevant Wrangler/workerd upgrades, compare the generated runtime header and run **Cloudflare type generation** when runtime typing assumptions change.
 7. Run lint, tests, and build.
 
 Use `npm ci` for an unchanged, synchronized manifest and lockfile. Use `npm install` for intentional dependency or lockfile changes. Review both direct and nested resolutions, especially Wrangler, the Cloudflare Vite plugin, and workerd, rather than assuming one shared runtime version.
@@ -265,7 +269,7 @@ Use whenever dependency lifecycle scripts, package provenance, lockfile changes,
 
 `package.json` contains an `allowScripts` policy. Treat it as a security control.
 
-The current allowlist lists `esbuild@0.28.1`; the lockfile also marks direct and nested workerd packages and `fsevents` with `hasInstallScript`. Compare these entries when dependencies change. Verify how the active package-manager version enforces the policy; do not claim scripts were blocked merely because this field exists. Review the affected scripts before changing the policy.
+Compare version-specific allowlist entries with resolved package versions and every lockfile entry marked `hasInstallScript`, including nested packages. See [Maintenance drift to verify](#maintenance-drift-to-verify) for the dated comparison. Verify how the active package-manager version enforces the policy; do not claim scripts were blocked merely because this field exists. Review the affected scripts before changing the policy.
 
 ### Rules
 
@@ -329,7 +333,9 @@ npm run build
 
 The `deploy` job is currently commented out, including its condition, Node 24 setup, build, and `npm run deploy` step. There is no documentation-only path exclusion for CI. Recheck the workflow before publishing because a future change could restore automatic deployment.
 
-CodeQL scans `javascript-typescript` and `actions` on pushes, PRs, and its weekly schedule. Dependabot checks npm and GitHub Actions daily. PR labels come from `.github/labeler.yml` through the existing `pull_request_target` labeler workflow.
+The separate Cloudflare Workers Builds integration is active and reports its own check. A disabled GitHub Actions deployment job does not establish that repository pushes cannot build, upload, or deploy through another integration. Use the check result as evidence of that build only; verify the target and integration settings before reporting production deployment.
+
+CodeQL scans `javascript-typescript` and `actions` on pushes, PRs, and its weekly schedule. Dependabot checks npm and GitHub Actions daily. PR labels come from `.github/labeler.yml` through the `pull_request` labeler workflow. It requests read access to contents and write access to PRs/issues; its checkout step is commented out.
 
 ### Workflow rules
 
@@ -339,7 +345,7 @@ CodeQL scans `javascript-typescript` and `actions` on pushes, PRs, and its weekl
 - Treat artifact upload, caching, script execution, and token permissions as security-sensitive.
 - Do not interpolate untrusted PR or issue data directly into shell commands.
 - Do not switch privileged jobs to `pull_request_target` without a specific security-reviewed reason.
-- Keep the existing privileged labeler limited to trusted base-repository checkout/configuration and labeling. Do not execute PR-head code or install PR-controlled dependencies in that workflow.
+- For labeler failures, inspect the event, token permissions, and fork/Dependabot restrictions before proposing a fix. Do not switch events or broaden permissions solely to bypass a failed run. If a privileged event is deliberately introduced, use trusted base-repository configuration and never execute PR-head code or install PR-controlled dependencies.
 - Do not weaken CodeQL, Dependabot, or validation merely to obtain a green run.
 
 ## Security review
@@ -375,7 +381,8 @@ Use for Markdown, comments, README material, agent instructions, and other non-e
 - Do not document deployment or configuration behavior that the repository does not actually use.
 - Update adjacent documentation when a behavior change would otherwise leave instructions stale.
 - Avoid copying version numbers into many files unless they provide real operational value.
-- Verify command descriptions against npm scripts, routing claims against both Worker code and Wrangler configuration, and CI/deployment claims against workflow triggers and job conditions.
+- Date retained drift notes and compare generated headers, manifest ranges, and direct/nested lockfile resolutions instead of retaining historical installation claims as current evidence.
+- Verify command descriptions against npm scripts, routing claims against both Worker code and Wrangler configuration, and CI/deployment claims against workflow triggers, active steps, job conditions, and observed external check runs. A commented Actions job does not describe Cloudflare's independent build integration.
 - Verify relative Markdown links and referenced repository paths, and keep policy in `AGENTS.md` consistent with workflows in this file.
 - Check tracked environment files such as the root `.env` for intentional public-safe client configuration; reject secrets and local-only values.
 - Run `git diff --check` and confirm the diff contains only intended documentation files. No dependency installation is needed for this check.
@@ -432,7 +439,7 @@ Deployment is a remote mutation. Before running it:
 
 Do not treat a normal code or documentation task as implicit deployment approval.
 
-The `main` push workflow currently runs validation only: its deployment job is commented out. A future change could restore that job, so check the live workflow before publishing. A topic-branch PR runs validation without publishing to `main`.
+The `main` push Actions workflow currently runs validation only: its deployment job is commented out. A future change could restore that job, so check the live workflow before publishing. A topic-branch PR keeps `main` unchanged, but the independent Workers Builds integration may still run according to its configured branch/build settings. Report its observed results separately from production deployment.
 
 ## Completion workflow
 
@@ -444,7 +451,7 @@ Before reporting any completed change:
 4. Run the validation required by the type of change.
 5. Confirm generated files are intentional.
 6. Confirm `allowScripts` was not broadened unintentionally.
-7. Confirm no remote Cloudflare mutation occurred unless explicitly requested; check the current workflow deployment state before publishing to `main`.
+7. Confirm no deployment command or remote Cloudflare configuration change was made unless explicitly requested; check the live workflow before publishing to `main` and report any observed Workers Builds results separately.
 8. Summarize the files changed and the behavior or documentation added.
 9. List validation commands actually run, including failures or intentional skips.
 10. Verify published changes and link the branch or PR. Report remote checks separately from local checks, and leave the PR unmerged when deployment was not authorized.

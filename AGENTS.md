@@ -24,7 +24,7 @@ The CI matrix runs on Node 24 and Node 26. Changes must remain compatible with b
 
 Read dependency ranges from [package.json](package.json) and resolved versions from [package-lock.json](package-lock.json). These can differ, and transitive packages can resolve to multiple versions. The major versions above are a repository baseline, not a substitute for checking those files. Avoid duplicating patch-version snapshots in agent documentation or performing drive-by upgrades.
 
-`@openai/codex` is a development dependency. The current frontend and Worker do not contain an OpenAI API integration; do not infer application features from development-tool dependencies.
+`@openai/codex` and `eruda` are development dependencies. Neither is imported by the current frontend or Worker; the application has no OpenAI API integration or initialized Eruda console. Do not infer application features from development-tool dependencies.
 
 ## Repository map
 
@@ -65,6 +65,7 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 - Inspect the working tree, current branch, applicable instructions, and relevant open PRs before editing. Preserve existing user changes and use a separate checkout when necessary.
 - Start routine changes from the current target branch, normally `main`, and use a topic branch and pull request. Check for an existing relevant PR before creating another one.
 - A push or merge to `main` triggers CI, including for Markdown-only changes. The deployment job is currently commented out in `.github/workflows/node.js.yml`; check the live workflow before any push or merge because it may be re-enabled later.
+- The connected Cloudflare integration reports `Workers Builds: vashfx-homepage` independently of GitHub Actions. Its build/deploy settings are not defined by the commented Actions job. Report observed build, preview, and version results separately from verified production deployment; a successful build alone does not establish what is live.
 - Use a topic branch and PR for routine code or documentation updates. Do not run `npm run deploy` or re-enable the CI deployment job without an explicit deployment request.
 - Stage only intended files. Do not force-push, rewrite unrelated history, or overwrite concurrent changes to deliver an update.
 - Verify the published branch or PR diff and report its link. Distinguish local validation results from GitHub checks that are still pending or failed.
@@ -96,7 +97,7 @@ The scripts in `package.json` define the available commands:
 
 `package.json` contains an `allowScripts` policy for selected dependency install scripts. Treat that allowlist as a supply-chain security control.
 
-The current allowlist names `esbuild@0.28.1`. Compare it with packages marked `hasInstallScript` in `package-lock.json`, including nested workerd packages, when working on dependencies. Verify enforcement by the active package-manager version before relying on the field to block scripts; its presence alone is not evidence that an install enforced it.
+Compare allowlist entries with resolved dependency versions and packages marked `hasInstallScript` in `package-lock.json`, including nested workerd packages, when working on dependencies. A version-specific entry can become stale after an upgrade. See [Maintenance drift to verify](SKILLS.md#maintenance-drift-to-verify) for the latest repository comparison. Verify enforcement by the active package-manager version before relying on the field to block scripts; its presence alone is not evidence that an install enforced it.
 
 - Do not broadly enable package lifecycle scripts.
 - Do not add a package to `allowScripts` merely to make installation succeed.
@@ -126,7 +127,7 @@ Run:
 npm run cf-typegen
 ```
 
-whenever `wrangler.jsonc`, Worker bindings, compatibility flags, compatibility date, or Cloudflare runtime typing assumptions change.
+whenever `wrangler.jsonc`, Worker bindings, compatibility flags, compatibility date, or Cloudflare runtime typing assumptions change, including relevant Wrangler/workerd upgrades. Compare the generated header with the resolved toolchain; unchanged configuration does not guarantee that generated runtime types remain current.
 
 Generate types before the final lint/test/build pass so validation covers the resulting file. Review `worker-configuration.d.ts`, including its generation header and `Env`/`ASSETS` declarations. Commit it only when the generated types legitimately changed. Do not hand-edit generated sections to conceal a configuration/type mismatch.
 
@@ -215,7 +216,7 @@ When editing Cloudflare configuration:
 - Local secrets belong in ignored `.dev.vars` or `.env` files. Keep committed example files value-free.
 - For deployed secrets, use Cloudflare secret mechanisms when explicitly requested.
 - Do not run `npm run deploy` or `wrangler deploy` unless deployment is explicitly part of the task.
-- Pushes and merges to `main` run CI but do not currently deploy because the deployment job is commented out. Recheck the live workflow before treating that as a lasting guarantee.
+- The GitHub Actions deployment job is commented out, but the separate Workers Builds integration remains active. Check the integration's target and build/deploy settings for deployment work; do not infer deployment behavior solely from workflow YAML.
 - Do not change Worker routes, custom domains, account identifiers, production bindings, or remote resources without explicit approval.
 
 ## Security requirements
@@ -300,7 +301,7 @@ The workflow runs for pushes to `main`, pull requests targeting `main`, and manu
 
 CodeQL scans `javascript-typescript` and `actions` on pushes, pull requests, and its weekly schedule. Dependabot checks npm and GitHub Actions dependencies daily.
 
-The labeler already uses `pull_request_target` with write permissions for PR/issue labels. Keep its checkout and configuration on trusted base-repository content; do not add PR-head checkout, dependency installation, or execution of untrusted PR code to this privileged workflow.
+The labeler uses `pull_request`, with `contents: read`, `pull-requests: write`, and `issues: write`. Its checkout step is commented out; the active step runs `actions/labeler` with `.github/labeler.yml`. Treat PR data as untrusted and account for restricted fork/Dependabot tokens when diagnosing labeling failures. Do not switch to `pull_request_target` simply to bypass a token-permission failure; any deliberate privileged workflow must use trusted base-repository configuration and must not check out or execute PR-head code.
 
 When changing workflows:
 
@@ -323,5 +324,5 @@ Before reporting completion:
 6. If Cloudflare configuration or runtime types changed, confirm `npm run cf-typegen` ran before the final lint/test/build pass.
 7. Confirm generated files are intentional.
 8. Confirm dependency install-script permissions were not broadened unintentionally.
-9. Confirm no deployment or remote Cloudflare mutation occurred unless explicitly requested; check whether the deployment job remains disabled before publishing to `main`.
+9. Confirm no deployment command or remote Cloudflare configuration change was made unless explicitly requested. Check the live workflow before publishing to `main`, and report observed Workers Builds results separately from verified production deployment.
 10. Run `git diff --check`, verify the branch/PR diff, and summarize what changed with the validation commands actually run, including failures or skips.
