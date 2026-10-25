@@ -37,7 +37,7 @@ Use the repository-local toolchain through the scripts in [package.json](package
 | --- | --- |
 | `npm run dev` | Start Vite with the React and Cloudflare plugins. |
 | `npm run lint` | Run Oxlint with [.oxlintrc.json](.oxlintrc.json). |
-| `npm test` | Run Worker handler tests with Node's test runner and TypeScript stripping. |
+| `npm test` | Run client API and Worker handler tests with Node's test runner and TypeScript stripping. |
 | `npm run build` | Run `tsc -b` for the referenced TypeScript projects, then build with Vite into `dist/`. |
 | `npm run preview` | Build, then serve a local preview with Vite. |
 | `npm run cf-typegen` | Run `wrangler types` to regenerate Worker runtime and environment declarations. |
@@ -51,6 +51,7 @@ Linting and test execution do not replace TypeScript checking; `npm run build` c
 | --- | --- |
 | [src/main.tsx](src/main.tsx) | Mounts the React application. |
 | [src/App.tsx](src/App.tsx) | Starter UI, counter, and API request handling. |
+| [src/api.ts](src/api.ts), [tests/api.test.ts](tests/api.test.ts) | Client API requests, cancellation, and regression tests. |
 | [src/App.css](src/App.css), [src/index.css](src/index.css) | Application and global styles. |
 | [src/assets/](src/assets/), [public/](public/) | Imported application assets and static public files. |
 | [worker/index.ts](worker/index.ts) | Worker entry point and exported `handleRequest` function. |
@@ -70,7 +71,9 @@ The counter starts at `0` and increments when clicked. The API button requests t
 | Initial | Shows `Cloudflare` from local state; no request has been made. |
 | Loading | Shows `loading…` and disables the button while the request is pending. |
 | Success | Displays the returned `name`. |
-| Request or response failure | Displays `unavailable`. |
+| Request or response failure, including timeout | Displays `unavailable` and re-enables the button for retry. |
+
+The request has a 10-second deadline that includes reading the response body. A stalled connection or body is canceled at the deadline, and its timer is cleared when the request settles.
 
 The [Worker handler](worker/index.ts) matches the URL pathname and currently accepts every HTTP method:
 
@@ -117,18 +120,9 @@ Compare the header with the resolved top-level Wrangler/workerd toolchain; the V
 
 ### Environment settings
 
-The tracked root [.env](.env) contains public `VITE_*` configuration:
+No root `.env` is tracked or required. The API button uses the same-origin path `/api/`, and the generated Worker environment contains only the `ASSETS` binding. The former API URL, PWA, and long-reply variables were unused and are no longer declared.
 
-| Variable | Current application use |
-| --- | --- |
-| `VITE_GLOB_API_URL` | Defined; the API button uses the literal path `/api/`. |
-| `VITE_APP_API_BASE_URL` | Defined; changing it does not change the API button's request. |
-| `VITE_GLOB_OPEN_LONG_REPLY` | Defined; long-reply behavior is not implemented. |
-| `VITE_GLOB_APP_PWA` | Defined; PWA behavior is not implemented. |
-
-These variables also appear in the generated environment types. A type declaration does not establish that the app consumes a setting.
-
-Treat `VITE_*` values as public client configuration. Keep credentials out of them and all tracked files. Use ignored local secret files and Cloudflare secrets for private values. The existing `.env` is tracked; [.gitignore](.gitignore) ignores local `.env*` files except `.env.example`, but does not untrack an existing file.
+Treat any future `VITE_*` values as public client configuration. Keep credentials out of them and all tracked files. Use ignored local secret files and Cloudflare secrets for private values. [.gitignore](.gitignore) ignores local `.env*` files except `.env.example`; it does not protect files that are already tracked.
 
 ### Development tools
 
@@ -146,11 +140,13 @@ npm run build
 
 The [Worker tests](worker/index.test.ts) cover `/api/`, `/api/status?source=test`, `/`, `/api`, and `/apiary`, including response bodies and JSON content type. They call `handleRequest` directly; they do not exercise browser interaction or Cloudflare's asset-routing layer.
 
+The [client API tests](tests/api.test.ts) cover successful requests, HTTP and network failures, invalid JSON, invalid payloads, and deadlines for stalled response headers and bodies. [tsconfig.node.json](tsconfig.node.json) includes these tests in the TypeScript build checks.
+
 For a local browser check with `npm run dev` or `npm run preview`:
 
 1. Confirm that the counter starts at `0` and increments when clicked.
 2. Click the API button and inspect the network request to `/api/`; the initial `Cloudflare` label alone does not verify API connectivity.
-3. Confirm the loading/disabled state, successful response, and `unavailable` state after a failed request or invalid response.
+3. Confirm the loading/disabled state, successful response, and `unavailable` state after a failed request, invalid response, or 10-second timeout. Confirm the button becomes available for retry.
 4. When changing assets or routing, check the homepage and SPA fallback through the local server as well as the API routes.
 
 For documentation-only changes, verify commands, links, paths, and behavior against their source files, then check whitespace and patch errors:
@@ -182,6 +178,8 @@ This command builds and publishes remotely. Use `npm run preview` for a local bu
 Markdown-only changes also trigger CI. The Cloudflare deployment job in the Actions workflow is currently commented out; recheck the live workflow before relying on that behavior.
 
 For Workers Builds, review the reported build/version details, any supplied preview URL, and the integration's branch/build/deploy settings. A successful check alone does not establish which version is live in production, and the commented Actions job does not control this separate integration.
+
+The connected configuration inspected on 2026-10-25 runs `npm run build` followed by `npm run deploy` for `main`. Other branches run `npm run build` followed by `npx wrangler versions upload`. Recheck these remote settings before publishing or merging changes.
 
 Docker dependency updates are configured, but no `Dockerfile` is currently tracked.
 

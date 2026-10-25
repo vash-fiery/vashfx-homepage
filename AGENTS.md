@@ -33,6 +33,7 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 | `src/` | React application source. |
 | `src/main.tsx` | Browser entry point. |
 | `src/App.tsx` | Primary application component. |
+| `src/api.ts`, `tests/api.test.ts` | Client API request helper and regression tests. |
 | `src/App.css`, `src/index.css` | Application styling. |
 | `src/assets/` | Bundled application assets. |
 | `public/` | Static public assets copied by Vite. |
@@ -67,7 +68,7 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 - Inspect the working tree, current branch, applicable instructions, and relevant open PRs before editing. Preserve existing user changes and use a separate checkout when necessary.
 - Start routine changes from the current target branch, normally `main`, and use a topic branch and pull request. Check for an existing relevant PR before creating another one.
 - A push or merge to `main` triggers CI, including for Markdown-only changes. The deployment job is currently commented out in `.github/workflows/node.js.yml`; check the live workflow before any push or merge because it may be re-enabled later.
-- The connected Cloudflare integration reports `Workers Builds: vashfx-homepage` independently of GitHub Actions. Its build/deploy settings are not defined by the commented Actions job. Report observed build, preview, and version results separately from verified production deployment; a successful build alone does not establish what is live.
+- The connected Cloudflare integration reports `Workers Builds: vashfx-homepage` independently of GitHub Actions. When checked on 2026-10-25, its `main` trigger runs `npm run build` followed by `npm run deploy`; other branches upload versions with `npx wrangler versions upload`. Recheck these remote settings before publishing. Report observed build, preview, and version results separately from verified production deployment; a successful build alone does not establish what is live.
 - Use a topic branch and PR for routine code or documentation updates. Do not run `npm run deploy` or re-enable the CI deployment job without an explicit deployment request.
 - Stage only intended files. Do not force-push, rewrite unrelated history, or overwrite concurrent changes to deliver an update.
 - Verify the published branch or PR diff and report its link. Distinguish local validation results from GitHub checks that are still pending or failed.
@@ -91,7 +92,7 @@ The scripts in `package.json` define the available commands:
 | --- | --- |
 | `npm run dev` | Start Vite with the React and Cloudflare plugins. |
 | `npm run lint` | Run Oxlint using `.oxlintrc.json`; this is not a TypeScript build check. |
-| `npm test` | Run `node --test --experimental-strip-types worker/index.test.ts`. |
+| `npm test` | Run `node --test --experimental-strip-types tests/api.test.ts worker/index.test.ts`. |
 | `npm run build` | Run `tsc -b && vite build`; check referenced TypeScript projects before bundling. |
 | `npm run preview` | Build first, then run `vite preview` locally. |
 | `npm run cf-typegen` | Run `wrangler types`. |
@@ -147,7 +148,7 @@ Verify claims against source files at the target commit. Prefer links to configu
 
 ### Environment configuration
 
-The tracked root `.env` contains public `VITE_*` values. The current API button calls the literal same-origin path `/api/`; it does not use either configured API URL. The PWA and long-reply variables do not establish implemented features.
+No root `.env` is tracked or required by the current application. The API button calls the literal same-origin path `/api/` through `src/api.ts`. The generated Worker environment contains the `ASSETS` binding; the former API URL, PWA, and long-reply variables have no application consumers.
 
 Treat `VITE_*` values as public client configuration. Keep credentials in ignored local secret files and authorized Cloudflare secrets. Before changing configuration, trace its consumers in `src/`, `worker/`, and tooling; update generated types when the change affects Worker environment typing.
 
@@ -182,7 +183,7 @@ See [Formatting and presentation](SKILLS.md#formatting-and-presentation) for the
 - Validate or constrain dynamic external URLs before use. Never create `javascript:` or similarly unsafe navigation paths.
 - Place assets in `public/` or `src/assets/` according to whether they should be copied as-is or bundled/imported by Vite.
 - Keep responsive behavior intact and check common narrow and wide viewport layouts after visual changes.
-- Preserve the API button's loading/disabled state and `unavailable` fallback in `src/App.tsx` unless the task changes that behavior. Check `response.ok` and validate the response's `name` as a string before updating state.
+- Preserve the API button's loading/disabled state and `unavailable` fallback in `src/App.tsx` unless the task changes that behavior. Keep the HTTP status check, string-name validation, and 10-second request/body timeout in `src/api.ts`, including timer cleanup after settlement.
 
 ## Worker and API guidance
 
@@ -306,7 +307,7 @@ The repository ignores local artifacts including:
 
 Do not force-add ignored secret, build, Wrangler, or editor-local files.
 
-The tracked root `.env` currently contains public Vite configuration. Keep it free of secrets and local-only values; `.gitignore` does not protect files that are already tracked.
+No root `.env` is tracked. Keep any future tracked configuration free of secrets and local-only values; `.gitignore` does not protect files that are already tracked.
 
 `worker-configuration.d.ts` is committed generated output. Regenerate it with `npm run cf-typegen` when required instead of editing generated runtime types manually.
 
