@@ -33,6 +33,7 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 | `src/` | React application source. |
 | `src/main.tsx` | Browser entry point. |
 | `src/App.tsx` | Primary application component. |
+| `src/api.ts`, `tests/api.test.ts` | Client API request helper and regression tests. |
 | `src/App.css`, `src/index.css` | Application styling. |
 | `src/assets/` | Bundled application assets. |
 | `public/` | Static public assets copied by Vite. |
@@ -91,7 +92,7 @@ The scripts in `package.json` define the available commands:
 | --- | --- |
 | `npm run dev` | Start Vite with the React and Cloudflare plugins. |
 | `npm run lint` | Run Oxlint using `.oxlintrc.json`; this is not a TypeScript build check. |
-| `npm test` | Run `node --test --experimental-strip-types worker/index.test.ts`. |
+| `npm test` | Run `node --test --experimental-strip-types tests/api.test.ts worker/index.test.ts`. |
 | `npm run build` | Run `tsc -b && vite build`; check referenced TypeScript projects before bundling. |
 | `npm run preview` | Build first, then run `vite preview` locally. |
 | `npm run cf-typegen` | Run `wrangler types`. |
@@ -182,7 +183,7 @@ See [Formatting and presentation](SKILLS.md#formatting-and-presentation) for the
 - Validate or constrain dynamic external URLs before use. Never create `javascript:` or similarly unsafe navigation paths.
 - Place assets in `public/` or `src/assets/` according to whether they should be copied as-is or bundled/imported by Vite.
 - Keep responsive behavior intact and check common narrow and wide viewport layouts after visual changes.
-- Preserve the API button's loading/disabled state and `unavailable` fallback in `src/App.tsx` unless the task changes that behavior. Check `response.ok` and validate the response's `name` as a string before updating state.
+- Preserve the API button's loading/disabled state and `unavailable` fallback in `src/App.tsx` unless the task changes that behavior. Keep the HTTP status check, string-name validation, and 10-second request/body timeout in `src/api.ts`.
 
 ## Worker and API guidance
 
@@ -282,7 +283,7 @@ Do not perform unrelated dependency upgrades in the same patch unless explicitly
 
 ## Tests
 
-Worker tests use Node's built-in test runner with TypeScript stripping through the existing `npm test` script. Stripping types is not type checking; keep `npm run build` in executable-change validation. These are handler unit tests, not a browser or workerd integration suite.
+Client API and Worker tests use Node's built-in test runner with TypeScript stripping through the existing `npm test` script. Stripping types is not type checking; keep `npm run build` in executable-change validation. These are request-helper and handler unit tests, not a browser or workerd integration suite.
 
 - Add regression tests when fixing bugs.
 - Prefer deterministic tests without external network access.

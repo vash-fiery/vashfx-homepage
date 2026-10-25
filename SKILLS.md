@@ -66,9 +66,9 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-Comparison checked on 2026-10-23 against `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json`:
+Comparison checked on 2026-10-25 against `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json`:
 
-- The generated header records compatibility date `2026-09-09`, matching the configuration, but workerd `1.20261006.1`. The top-level lockfile resolutions are Wrangler `4.151.3` and workerd `1.20261019.1`, so the generated runtime snapshot predates the locked toolchain.
+- The regenerated header records compatibility date `2026-09-09` and workerd `1.20261019.1`, matching the configuration and locked top-level toolchain (Wrangler `4.151.3`). Recheck this alignment after runtime upgrades.
 - `@cloudflare/vite-plugin` `1.64.0` resolves its own Wrangler `4.151.0` and workerd `1.20261012.1`. Another workerd `1.20261012.1` is nested under top-level Miniflare. Do not assume the dev-server runtime and top-level Wrangler use the same version.
 - `allowScripts` lists `esbuild@0.28.1`, while the lockfile resolves esbuild `0.28.2`. The lockfile marks esbuild, direct and nested workerd packages, and `fsevents` with `hasInstallScript`. Review the stale version-specific entry and actual package-manager enforcement during dependency maintenance.
 
@@ -133,7 +133,7 @@ Read the stack overview in [AGENTS.md](AGENTS.md#current-project-baseline), depe
 5. Keep user-visible behavior accessible and responsive.
 6. Run the required validation before completion.
 
-For the existing API button, preserve the loading/disabled state, the `response.ok` check, validation that `name` is a string, and the `unavailable` fallback. Exercise success and failure behavior when changing this interaction.
+For the existing API button, preserve the loading/disabled state, the `response.ok` check, validation that `name` is a string, the 10-second request/body timeout, and the `unavailable` fallback. The request helper and regression tests are in `src/api.ts` and `tests/api.test.ts`. Exercise success, failure, and timeout behavior when changing this interaction.
 
 ### Guardrails
 
@@ -209,7 +209,7 @@ Review Worker changes for:
 
 Use for API behavior changes, Worker bug fixes, and route changes.
 
-The repository uses Node's built-in test runner with TypeScript stripping through the existing npm script: `node --test --experimental-strip-types worker/index.test.ts`. Use the CI-supported Node 24/26 versions. This command executes tests without type checking; `npm run build` supplies the TypeScript project checks.
+The repository uses Node's built-in test runner with TypeScript stripping through the existing npm script: `node --test --experimental-strip-types tests/api.test.ts worker/index.test.ts`. Use the CI-supported Node 24/26 versions. This command executes tests without type checking; `npm run build` supplies the TypeScript project checks. The client API tests mock network access and cover successful responses, errors, invalid data, and request/body timeouts.
 
 ### Primary command
 

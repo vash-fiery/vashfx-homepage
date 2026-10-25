@@ -37,7 +37,7 @@ Use the repository-local toolchain through the scripts in [package.json](package
 | --- | --- |
 | `npm run dev` | Start Vite with the React and Cloudflare plugins. |
 | `npm run lint` | Run Oxlint with [.oxlintrc.json](.oxlintrc.json). |
-| `npm test` | Run Worker handler tests with Node's test runner and TypeScript stripping. |
+| `npm test` | Run client API and Worker handler tests with Node's test runner and TypeScript stripping. |
 | `npm run build` | Run `tsc -b` for the referenced TypeScript projects, then build with Vite into `dist/`. |
 | `npm run preview` | Build, then serve a local preview with Vite. |
 | `npm run cf-typegen` | Run `wrangler types` to regenerate Worker runtime and environment declarations. |
@@ -63,7 +63,7 @@ Linting and test execution do not replace TypeScript checking; `npm run build` c
 
 ## Application and API behavior
 
-The counter starts at `0` and increments when clicked. The API button requests the same-origin path `/api/` and requires both a successful HTTP status and a string `name` in the JSON response.
+The counter starts at `0` and increments when clicked. The API button requests the same-origin path `/api/` and requires both a successful HTTP status and a string `name` in the JSON response. A 10-second timeout covers both the request and reading its response body; a timeout shows `unavailable` and enables the button again so the request can be retried.
 
 | API button state | Display and behavior |
 | --- | --- |
@@ -145,6 +145,8 @@ npm run build
 ```
 
 The [Worker tests](worker/index.test.ts) cover `/api/`, `/api/status?source=test`, `/`, `/api`, and `/apiary`, including response bodies and JSON content type. They call `handleRequest` directly; they do not exercise browser interaction or Cloudflare's asset-routing layer.
+
+The [client API tests](tests/api.test.ts) cover successful responses, HTTP and network errors, malformed JSON, invalid payloads, and timeouts before headers or while reading the body. They mock network access and use Node's existing test runner; the Node TypeScript project checks their types during `npm run build`.
 
 For a local browser check with `npm run dev` or `npm run preview`:
 

@@ -1,13 +1,10 @@
 import { useState } from 'react'
+import { fetchApiName } from './api.ts'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import cloudflareLogo from './assets/cloudflare.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-
-type ApiResponse = {
-  name?: 'Cloudflare'
-}
 
 function App() {
   const [count, setCount] = useState(0)
@@ -18,13 +15,7 @@ function App() {
     setIsLoadingName(true)
 
     try {
-      const response = await fetch('/api/')
-      if (!response.ok) throw new Error(`API request failed: ${response.status}`)
-
-      const data = await response.json() as ApiResponse
-      if (typeof data.name !== 'string') throw new Error('Invalid API response')
-
-      setName(data.name)
+      setName(await fetchApiName())
     } catch {
       setName('unavailable')
     } finally {
