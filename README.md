@@ -1,6 +1,6 @@
 # VashFX Homepage
 
-A React and TypeScript homepage built with Vite and backed by a Cloudflare Worker. The current application is a starter page with a counter and an API button.
+A React and TypeScript homepage built with Vite and backed by a Cloudflare Worker. The VashFX landing page links to Vash Fiery’s GitHub projects, the homepage source, and issue reports. An optional connection check is available in the footer.
 
 | Layer | Tooling |
 | --- | --- |
@@ -50,7 +50,7 @@ Linting and test execution do not replace TypeScript checking; `npm run build` c
 | Path | Role |
 | --- | --- |
 | [src/main.tsx](src/main.tsx) | Mounts the React application. |
-| [src/App.tsx](src/App.tsx) | Starter UI, counter, and API request handling. |
+| [src/App.tsx](src/App.tsx) | VashFX landing page, project links, and optional connection check. |
 | [src/api.ts](src/api.ts), [tests/api.test.ts](tests/api.test.ts) | Client API requests, cancellation, and regression tests. |
 | [src/App.css](src/App.css), [src/index.css](src/index.css) | Application and global styles. |
 | [src/assets/](src/assets/), [public/](public/) | Imported application assets and static public files. |
@@ -64,13 +64,13 @@ Linting and test execution do not replace TypeScript checking; `npm run build` c
 
 ## Application and API behavior
 
-The counter starts at `0` and increments when clicked. The API button requests the same-origin path `/api/` and requires both a successful HTTP status and a string `name` in the JSON response.
+The homepage presents VashFX branding and links to existing GitHub destinations. It does not list or install individual userscripts. Open **Connection check** in the footer and click **Check connection** to request the same-origin path `/api/`. The check requires both a successful HTTP status and a string `name` in the JSON response.
 
 | API button state | Display and behavior |
 | --- | --- |
-| Initial | Shows `Cloudflare` from local state; no request has been made. |
-| Loading | Shows `loading…` and disables the button while the request is pending. |
-| Success | Displays the returned `name`. |
+| Initial | Shows `Not checked`; no request has been made. |
+| Loading | Shows `Checking…` and disables the button while the request is pending. |
+| Success | Shows `Connected` and the returned `name`. |
 | Request or response failure, including timeout | Displays `unavailable` and re-enables the button for retry. |
 
 The request has a 10-second deadline that includes reading the response body. A stalled connection or body is canceled at the deadline, and its timer is cleared when the request settles.
