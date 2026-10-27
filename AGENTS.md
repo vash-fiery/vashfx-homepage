@@ -4,7 +4,7 @@
 
 These instructions apply to the entire repository unless a more deeply nested `AGENTS.md` or `AGENTS.override.md` provides more specific guidance.
 
-This repository is the source for the VashFX homepage. The current UI is a React starter page with a counter and Worker API button. Treat changes with production care; repository configuration alone does not establish the live deployment state.
+This repository is the source for the VashFX homepage. The current UI is a branded React landing page with project/source/feedback links and an optional Worker API connection check in the footer. Treat changes with production care; repository configuration alone does not establish the live deployment state.
 
 Read [SKILLS.md](SKILLS.md) for task-specific workflows. This file defines repository policy; `SKILLS.md` explains how to apply it.
 

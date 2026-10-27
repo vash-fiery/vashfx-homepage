@@ -1,14 +1,12 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import cloudflareLogo from './assets/cloudflare.svg'
-import heroImg from './assets/hero.png'
 import { fetchApiName } from './api'
 import './App.css'
 
+const githubUrl = 'https://github.com/vash-fiery'
+const repositoryUrl = `${githubUrl}/vashfx-homepage`
+
 function App() {
-  const [count, setCount] = useState(0)
-  const [name, setName] = useState('Cloudflare')
+  const [name, setName] = useState<string | null>(null)
   const [isLoadingName, setIsLoadingName] = useState(false)
 
   const loadName = async () => {
@@ -23,135 +21,102 @@ function App() {
     }
   }
 
+  const connectionStatus = isLoadingName
+    ? 'Checking…'
+    : name === null
+      ? 'Not checked'
+      : name === 'unavailable'
+        ? 'unavailable'
+        : `Connected · ${name}`
+
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started with Cloudflare</h1>
-          <p>
-            Edit <code>src/App.tsx</code> or <code>worker/index.ts</code> and save to test <code>HMR</code>
+    <div className="site-shell">
+      <a className="skip-link" href="#main">Skip to content</a>
+
+      <header className="site-header">
+        <a className="wordmark" href="/" aria-label="VashFX home">
+          <img src="/logo-bimi.svg" width="32" height="32" alt="" />
+          <span>VASH<span className="wordmark-accent">FX</span></span>
+        </a>
+        <nav aria-label="Main navigation">
+          <a href="#explore">Explore</a>
+          <a href={githubUrl}>GitHub <span aria-hidden="true">↗</span></a>
+        </nav>
+      </header>
+
+      <main id="main">
+        <section className="hero" aria-labelledby="hero-title">
+          <p className="eyebrow"><span aria-hidden="true">//</span> CUSTOM USERSCRIPTS &amp; BROWSER TOOLS</p>
+          <h1 id="hero-title">Your browser.<br /><span>Your rules.</span></h1>
+          <p className="hero-description">
+            Welcome to VashFX, the home of Vash Fiery’s browser projects.
+            Explore the code and follow what’s next on GitHub.
           </p>
-        </div>
-        <ul style={{ display: 'flex', gap: '1rem', listStyle: 'none', padding: 0 }}>
-          <li>
+          <div className="hero-actions">
+            <a className="button button-primary" href={githubUrl}>
+              Explore GitHub <span aria-hidden="true">↗</span>
+            </a>
+            <a className="button button-secondary" href={repositoryUrl}>
+              View homepage source <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <p className="hero-note">Built by Vash Fiery. Made for the web.</p>
+        </section>
+
+        <section className="explore" id="explore" aria-labelledby="explore-title">
+          <div className="section-heading">
+            <h2 id="explore-title">Explore VashFX</h2>
+            <span className="eyebrow">CODE / PROJECTS / FEEDBACK</span>
+          </div>
+          <div className="project-grid">
+            <article className="project-card">
+              <div className="card-heading"><span className="card-number">01</span><span>PROJECTS</span></div>
+              <div className="card-content">
+                <h3>Browse the code</h3>
+                <p>Find Vash Fiery’s public repositories and follow development on GitHub.</p>
+                <a href={githubUrl}>Browse projects <span aria-hidden="true">↗</span></a>
+              </div>
+            </article>
+            <article className="project-card">
+              <div className="card-heading"><span className="card-number">02</span><span>HOMEPAGE</span></div>
+              <div className="card-content">
+                <h3>Behind this page</h3>
+                <p>Explore the source for this website, its documentation, and its development history.</p>
+                <a href={repositoryUrl}>View repository <span aria-hidden="true">↗</span></a>
+              </div>
+            </article>
+            <article className="project-card">
+              <div className="card-heading"><span className="card-number">03</span><span>FEEDBACK</span></div>
+              <div className="card-content">
+                <h3>Make it better</h3>
+                <p>Found something broken on this website? Share a bug report or a suggestion.</p>
+                <a href={`${repositoryUrl}/issues`}>Issues &amp; feedback <span aria-hidden="true">↗</span></a>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <p><span className="footer-brand">VashFX</span> <span aria-hidden="true">/</span> Vash Fiery</p>
+        <details className="connection-check">
+          <summary>Connection check</summary>
+          <div className="connection-panel">
+            <p>Check this website’s connection.</p>
             <button
-              className="counter"
-              onClick={() => setCount((count) => count + 1)}
-            >
-              Count is {count}
-            </button>
-          </li>
-          <li>
-            <button
-              className="counter"
+              className="button button-secondary"
               type="button"
               onClick={() => void loadName()}
               disabled={isLoadingName}
-              aria-label="Get name from API"
+              aria-busy={isLoadingName}
             >
-              Name from API is: {isLoadingName ? 'loading…' : name}
+              {isLoadingName ? 'Checking…' : 'Check connection'}
             </button>
-          </li>
-        </ul>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank" rel="noreferrer">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank" rel="noreferrer">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-            <li>
-              <a href="https://workers.cloudflare.com/" target="_blank" rel="noreferrer">
-                <img className="button-icon" src={cloudflareLogo} alt="" />
-                Workers Docs
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank" rel="noreferrer">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank" rel="noreferrer">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank" rel="noreferrer">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank" rel="noreferrer">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+            <p className="connection-status" role="status">{connectionStatus}</p>
+          </div>
+        </details>
+      </footer>
+    </div>
   )
 }
 
