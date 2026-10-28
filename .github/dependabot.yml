@@ -20,20 +20,6 @@ updates:
     assignees:
       - "vash-fiery"
 
-  - package-ecosystem: "docker" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "daily"
-    allow:
-      - dependency-type: "all"
-    commit-message:
-      prefix: "[docker] "
-    labels:
-      - "docker"
-    #  - "triage"
-    assignees:
-      - "vash-fiery"
-
   - package-ecosystem: "github-actions"
     # Workflow files stored in the default location of `.github/workflows`
     # You don't need to specify `/.github/workflows` for `directory`. You can use `directory: "/"`.
