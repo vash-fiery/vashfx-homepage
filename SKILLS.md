@@ -66,11 +66,11 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-Comparison checked on 2026-11-03 against `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json`:
+Comparison checked on 2026-10-25 against `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json`:
 
-- The generated header still records compatibility date `2026-09-09` and workerd `1.20261019.1`. The compatibility date matches `wrangler.jsonc`, but the runtime version is now stale: Dependabot upgrades moved the direct `workerd` dependency to `1.20261031.1` and top-level Wrangler to `4.156.0`, which resolves its own nested workerd `1.20261023.1`. The generated environment contains only `ASSETS`. Run **Cloudflare type generation** in the next runtime or dependency task and review which workerd version the new header records.
-- `@cloudflare/vite-plugin` `1.66.0` resolves its own Wrangler `4.154.0` and workerd `1.20261023.1`. Top-level Miniflare (`5.20261023.1-beta`) and Wrangler's nested Miniflare (`5.20261023.3-beta`) differ, and workerd `1.20261023.1` is also nested under top-level Miniflare. Do not assume the dev server, top-level Wrangler, and the direct `workerd` dependency use the same runtime version.
-- `allowScripts` lists `esbuild@0.28.1`, while the lockfile resolves esbuild `0.28.2`. The lockfile marks esbuild, the direct workerd package, three nested workerd packages, and `fsevents` with `hasInstallScript`. Review the stale version-specific entry and actual package-manager enforcement during dependency maintenance.
+- The regenerated header records compatibility date `2026-09-09` and workerd `1.20261019.1`, matching the configuration and locked top-level runtime. The top-level Wrangler version is `4.151.3`. The generated environment now contains only `ASSETS`, reflecting the deletion of the unused root `.env`.
+- `@cloudflare/vite-plugin` `1.64.0` resolves its own Wrangler `4.151.0` and workerd `1.20261012.1`. Another workerd `1.20261012.1` is nested under top-level Miniflare. Do not assume the dev-server runtime and top-level Wrangler use the same version.
+- `allowScripts` lists `esbuild@0.28.1`, while the lockfile resolves esbuild `0.28.2`. The lockfile marks esbuild, direct and nested workerd packages, and `fsevents` with `hasInstallScript`. Review the stale version-specific entry and actual package-manager enforcement during dependency maintenance.
 
 Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
 
