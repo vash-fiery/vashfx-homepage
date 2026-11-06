@@ -22,4 +22,4 @@ jobs:
       uses: actions/labeler@v7
       with:
         repo-token: ${{ github.token }}
-        configuration-path: .github/labeler.yml
+        configuration-path: ".github/labeler.yml"
