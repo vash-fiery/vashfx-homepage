@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.67.0",
-    "@openai/codex": "^0.166.0",
+    "@openai/codex": "^0.167.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.3.0",
