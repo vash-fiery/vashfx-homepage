@@ -53,7 +53,7 @@ Linting and test execution do not replace TypeScript checking; `npm run build` c
 | [src/App.tsx](src/App.tsx) | VashFX landing page, project links, and optional connection check. |
 | [src/api.ts](src/api.ts), [tests/api.test.ts](tests/api.test.ts) | Client API requests, cancellation, and regression tests. |
 | [src/App.css](src/App.css), [src/index.css](src/index.css) | Application and global styles. |
-| [src/assets/](src/assets/), [public/](public/) | Imported application assets and static public files. |
+| [public/](public/) | Static public files: favicon and wordmark logo. |
 | [worker/index.ts](worker/index.ts) | Worker entry point and exported `handleRequest` function. |
 | [worker/index.test.ts](worker/index.test.ts) | Direct-handler API and route-boundary tests. |
 | [vite.config.ts](vite.config.ts), [wrangler.jsonc](wrangler.jsonc) | Build plugins and persistent Worker configuration. |

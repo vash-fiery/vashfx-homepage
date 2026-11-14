@@ -66,11 +66,11 @@ Start with the files closest to the requested change. Common anchors include:
 
 ### Maintenance drift to verify
 
-Comparison checked on 2026-10-25 against `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json`:
+Comparison checked on 2026-11-14 against `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json`:
 
-- The regenerated header records compatibility date `2026-09-09` and workerd `1.20261019.1`, matching the configuration and locked top-level runtime. The top-level Wrangler version is `4.151.3`. The generated environment now contains only `ASSETS`, reflecting the deletion of the unused root `.env`.
-- `@cloudflare/vite-plugin` `1.64.0` resolves its own Wrangler `4.151.0` and workerd `1.20261012.1`. Another workerd `1.20261012.1` is nested under top-level Miniflare. Do not assume the dev-server runtime and top-level Wrangler use the same version.
-- `allowScripts` lists `esbuild@0.28.1`, while the lockfile resolves esbuild `0.28.2`. The lockfile marks esbuild, direct and nested workerd packages, and `fsevents` with `hasInstallScript`. Review the stale version-specific entry and actual package-manager enforcement during dependency maintenance.
+- The regenerated header records compatibility date `2026-09-09` and workerd `1.20261110.1`, matching the configuration and locked top-level runtime. The top-level Wrangler version is `4.160.0`. The generated environment contains only `ASSETS`.
+- `@cloudflare/vite-plugin` `1.68.0` resolves its own Wrangler `4.157.0` and workerd `1.20261103.1`. Another workerd `1.20261103.1` is nested under top-level Miniflare. Do not assume the dev-server runtime and top-level Wrangler use the same version.
+- `allowScripts` lists `esbuild@0.28.2`, matching the resolved esbuild. The lockfile marks esbuild, direct and nested workerd packages, and `fsevents` with `hasInstallScript`. npm 10.9 contains no `allowScripts` support, so the field alone does not block install scripts there; verify enforcement with the npm version bundled with each CI Node release.
 
 Recheck `wrangler.jsonc`, `worker-configuration.d.ts`, `package.json`, and `package-lock.json` before a runtime or dependency task. Regenerate types or review install-script entries within that task's scope, then update this note when resolved. Do not silently regenerate types or broaden script permissions during a documentation-only update.
 
