@@ -35,8 +35,7 @@ Read dependency ranges from [package.json](package.json) and resolved versions f
 | `src/App.tsx` | Primary application component. |
 | `src/api.ts`, `tests/api.test.ts` | Client API request helper and regression tests. |
 | `src/App.css`, `src/index.css` | Application styling. |
-| `src/assets/` | Bundled application assets. |
-| `public/` | Static public assets copied by Vite. |
+| `public/` | Static public assets copied by Vite (`favicon.svg`, `logo-bimi.svg`). No `src/assets/` directory currently exists. |
 | `worker/index.ts` | Cloudflare Worker request handler. |
 | `worker/index.test.ts` | Worker unit tests using `node:test`. |
 | `wrangler.jsonc` | Source of truth for persistent Cloudflare Worker configuration. |
