@@ -1,4 +1,4 @@
-name: "Labeler"
+name: "Label Pull Requests"
 
 on:
   push:
@@ -22,7 +22,8 @@ jobs:
         repository: "vash-fiery/vashfx-homepage" # The one of the available inputs, visit https://github.com/actions/checkout#readme to find more
 
     - name: Labeler
-      uses: actions/labeler@v7
+      uses: actions/labeler@v7.0.0
       with:
+        dot: true
         repo-token: ${{ github.token }}
-        configuration-path: ".github/labeler.yml"
+        configuration-path: '.github/labeler.yml'
