@@ -27,7 +27,7 @@
     "oxlint": "^1.93.0",
     "typescript": "~6.0.2",
     "vite": "^8.3.8",
-    "workerd": "^1.20261110.1",
+    "workerd": "^1.20261113.1",
     "wrangler": "^4.160.1"
   },
   "allowScripts": {
