@@ -8,9 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
 
 jobs:
   build:
@@ -18,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: 'ubuntu-26.04'
+        os: [ 'ubuntu-26.04' ]
         node_version: [ '24.x', '26.x' ]
       fail-fast: false
 
