@@ -325,7 +325,7 @@ The workflow runs for pushes to `main`, pull requests targeting `main`, and manu
 
 CodeQL scans `javascript-typescript` and `actions` on pushes, pull requests, and its weekly schedule. Dependabot checks npm and GitHub Actions dependencies daily.
 
-The labeler uses `pull_request`, with `contents: read`, `pull-requests: write`, and `issues: write`. Its checkout step is commented out; the active step runs `actions/labeler` with `.github/labeler.yml`. Treat PR data as untrusted and account for restricted fork/Dependabot tokens when diagnosing labeling failures. Do not switch to `pull_request_target` simply to bypass a token-permission failure; any deliberate privileged workflow must use trusted base-repository configuration and must not check out or execute PR-head code.
+The labeler uses `pull_request`, with `contents: read`, `pull-requests: write`, and `issues: write`. It has no checkout step; its single step runs `actions/labeler` with `.github/labeler.yml`. Treat PR data as untrusted and account for restricted fork/Dependabot tokens when diagnosing labeling failures. Do not switch to `pull_request_target` simply to bypass a token-permission failure; any deliberate privileged workflow must use trusted base-repository configuration and must not check out or execute PR-head code.
 
 When changing workflows:
 

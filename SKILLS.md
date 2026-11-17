@@ -368,7 +368,7 @@ The `deploy` job is currently commented out, including its condition, Node 24 se
 
 The separate Cloudflare Workers Builds integration is active and reports its own check. A disabled GitHub Actions deployment job does not establish that repository pushes cannot build, upload, or deploy through another integration. Use the check result as evidence of that build only; verify the target and integration settings before reporting production deployment.
 
-CodeQL scans `javascript-typescript` and `actions` on pushes, PRs, and its weekly schedule. Dependabot checks npm and GitHub Actions daily. PR labels come from `.github/labeler.yml` through the `pull_request` labeler workflow. It requests read access to contents and write access to PRs/issues; its checkout step is commented out.
+CodeQL scans `javascript-typescript` and `actions` on pushes, PRs, and its weekly schedule. Dependabot checks npm and GitHub Actions daily. PR labels come from `.github/labeler.yml` through the `pull_request` labeler workflow. It requests read access to contents and write access to PRs/issues, and has no checkout step.
 
 ### Workflow rules
 
