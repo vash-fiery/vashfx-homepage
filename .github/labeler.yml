@@ -1,11 +1,13 @@
+# Rules for actions/labeler (see .github/workflows/labeler.yml).
+# Head-branch patterns are regular expressions; file patterns are globs.
+
+# Add 'bug' to PRs from fix branches, e.g. `fix/...`, `hotfix-...`, `claude/fix-...`
 bug:
-  - changed-files:
-      - any-glob-to-any-file: '**/*.js'
+  - head-branch: ['^(bug|hot)?fix', '/(bug|hot)?fix']
 
 documentation:
   - changed-files:
-      - any-glob-to-any-file: '**/*.md'
-      - any-glob-to-any-file: ['docs/**/*', '*.md']
+      - any-glob-to-any-file: ['**/*.md', 'docs/**']
 
 frontend:
   - changed-files:
@@ -17,22 +19,16 @@ backend:
 
 tests:
   - changed-files:
-      - any-glob-to-any-file: 'tests/**'
+      - any-glob-to-any-file: ['tests/**', '**/*.test.ts']
 
 dependencies:
   - changed-files:
-      - any-glob-to-any-file: ['package.json', 'yarn.lock', 'package-lock.json']
+      - any-glob-to-any-file: ['package.json', 'package-lock.json']
 
-source:
-- all:
-  - changed-files:
-    - any-glob-to-any-file: 'src/**/*'
-    - all-globs-to-all-files: '!src/docs/*'
-
-# Add 'feature' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
+# Add 'feature' to PRs whose head branch starts with `feature` or has a `/feature` section, e.g. `claude/feature-x`
 feature:
-  - head-branch: ['^feature', 'feature']
+  - head-branch: ['^feature', '/feature']
 
-# Add 'release' label to any PR that is opened against the `main` branch
+# Add 'release' to PRs from release branches, e.g. `release/1.2.0`
 release:
-  - base-branch: 'main'
+  - head-branch: ['^release']
