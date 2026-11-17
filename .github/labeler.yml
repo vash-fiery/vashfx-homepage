@@ -15,6 +15,10 @@ backend:
   - changed-files:
       - any-glob-to-any-file: 'worker/**'
 
+tests:
+  - changed-files:
+      - any-glob-to-any-file: 'tests/**'
+
 dependencies:
   - changed-files:
       - any-glob-to-any-file: ['package.json', 'yarn.lock', 'package-lock.json']
@@ -30,5 +34,5 @@ feature:
   - head-branch: ['^feature', 'feature']
 
 # Add 'release' label to any PR that is opened against the `main` branch
-# release:
-#  - base-branch: 'main'
+release:
+  - base-branch: 'main'
