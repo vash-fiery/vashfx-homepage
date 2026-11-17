@@ -1,13 +1,11 @@
 name: "Label Pull Requests"
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
   issues: write
 
@@ -16,11 +14,8 @@ jobs:
     runs-on: ['ubuntu-26.04']
 
     steps:
-    - name: Labeler
-      uses: actions/checkout@v7 # Uploads repository content to the runner
-      with:
-        repository: "vash-fiery/vashfx-homepage" # The one of the available inputs, visit https://github.com/actions/checkout#readme to find more
-
+    # No checkout: actions/labeler reads the configuration through the API,
+    # so PR-head files are never placed on the runner.
     - name: Labeler
       uses: actions/labeler@v7.0.0
       with:
