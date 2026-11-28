@@ -31,7 +31,7 @@
     "issues": {
       "enabled": true
     }
-  },
+	},
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
